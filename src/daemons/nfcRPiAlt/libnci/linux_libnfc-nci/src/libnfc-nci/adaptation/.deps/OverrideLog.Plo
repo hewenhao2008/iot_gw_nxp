@@ -1,0 +1,18 @@
+src/libnfc-nci/adaptation/OverrideLog.lo: \
+ src/libnfc-nci/adaptation/OverrideLog.cpp \
+ src/libnfc-nci/include/OverrideLog.h src/libnfc-nci/include/bt_types.h \
+ src/libnfc-nci/gki/ulinux/data_types.h \
+ src/libnfc-nci/include/nci_config.h src/halimpl/pn54x/log/phNxpLog.h \
+ src/libnfc-nci/include/android_logmsg.h
+
+src/libnfc-nci/include/OverrideLog.h:
+
+src/libnfc-nci/include/bt_types.h:
+
+src/libnfc-nci/gki/ulinux/data_types.h:
+
+src/libnfc-nci/include/nci_config.h:
+
+src/halimpl/pn54x/log/phNxpLog.h:
+
+src/libnfc-nci/include/android_logmsg.h:

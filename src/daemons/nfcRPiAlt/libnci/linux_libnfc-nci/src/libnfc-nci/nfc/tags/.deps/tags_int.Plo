@@ -1,0 +1,48 @@
+src/libnfc-nci/nfc/tags/tags_int.lo: src/libnfc-nci/nfc/tags/tags_int.c \
+ src/libnfc-nci/include/nfc_target.h \
+ src/libnfc-nci/gki/ulinux/data_types.h \
+ src/libnfc-nci/include/gki_target.h src/libnfc-nci/include/bt_types.h \
+ src/libnfc-nci/include/dyn_mem.h src/libnfc-nci/include/bt_trace.h \
+ src/libnfc-nci/include/bt_types.h src/libnfc-nci/nfc/include/nfc_api.h \
+ src/libnfc-nci/hal/include/nci_defs.h \
+ src/libnfc-nci/hal/include/nfc_hal_api.h src/libnfc-nci/gki/common/gki.h \
+ src/libnfc-nci/include/bt_target.h src/libnfc-nci/nfc/include/rw_api.h \
+ src/libnfc-nci/nfc/include/tags_defs.h src/libnfc-nci/nfc/int/rw_int.h \
+ src/libnfc-nci/nfc/include/tags_defs.h src/libnfc-nci/nfc/int/tags_int.h \
+ src/libnfc-nci/nfc/int/tags_int.h
+
+src/libnfc-nci/include/nfc_target.h:
+
+src/libnfc-nci/gki/ulinux/data_types.h:
+
+src/libnfc-nci/include/gki_target.h:
+
+src/libnfc-nci/include/bt_types.h:
+
+src/libnfc-nci/include/dyn_mem.h:
+
+src/libnfc-nci/include/bt_trace.h:
+
+src/libnfc-nci/include/bt_types.h:
+
+src/libnfc-nci/nfc/include/nfc_api.h:
+
+src/libnfc-nci/hal/include/nci_defs.h:
+
+src/libnfc-nci/hal/include/nfc_hal_api.h:
+
+src/libnfc-nci/gki/common/gki.h:
+
+src/libnfc-nci/include/bt_target.h:
+
+src/libnfc-nci/nfc/include/rw_api.h:
+
+src/libnfc-nci/nfc/include/tags_defs.h:
+
+src/libnfc-nci/nfc/int/rw_int.h:
+
+src/libnfc-nci/nfc/include/tags_defs.h:
+
+src/libnfc-nci/nfc/int/tags_int.h:
+
+src/libnfc-nci/nfc/int/tags_int.h:
