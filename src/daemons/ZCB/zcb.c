@@ -495,7 +495,7 @@ done:
 // ------------------------------------------------------------------
 // Write attribute
 // ------------------------------------------------------------------
-
+//-下面应该是针对一个流程等待了一个应答的
 teZcbStatus eZCB_WriteAttributeRequest(uint16_t u16ShortAddress,
                                     uint16_t u16ClusterID,
                                     uint8_t u8Direction, 
@@ -659,7 +659,7 @@ teZcbStatus eZCB_WriteAttributeRequest(uint16_t u16ShortAddress,
         /* Wait 1 second for the message to arrive */
         /**\todo ZCB-Sheffield: handle data indication here for now - BAD Idea! Implement a general case handler in future! */
         if (eSL_MessageWait(E_SL_MSG_DATA_INDICATION, 1000, &u16Length, (void**)&psDataIndication) != E_SL_OK)
-        {
+        {//-阻塞等待特定的报文
             DEBUG_PRINTF( "No response to write attribute request\n");
             eStatus = E_ZCB_COMMS_FAILED;
             goto done;

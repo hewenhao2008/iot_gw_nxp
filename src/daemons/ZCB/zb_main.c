@@ -382,8 +382,8 @@ static void zcb_onInteger(char * name, int value) {
 static void SmartPlugUpdateIntervalMsg( uint64_t u64IEEEAddress, uint16_t u16UpdateInterval ) {
   
     char  mac[LEN_MAC_NIBBLE+2];
-    u642nibblestr( u64IEEEAddress, mac );
-    uint16_t u16ShortAddress = zcbNodeGetShortAddress( mac );
+    u642nibblestr( u64IEEEAddress, mac );	//-把数字转化成了字符串
+    uint16_t u16ShortAddress = zcbNodeGetShortAddress( mac );	//-通过mac地址得到短地址,貌似是查数据库,而不是询问
   
     DEBUG_PRINTF("vSendPlugMeterUpdateIntervalMsg (0x%llx -> 0x%04x): interval=%d seconds\n",
 		 u64IEEEAddress, u16ShortAddress, u16UpdateInterval); 

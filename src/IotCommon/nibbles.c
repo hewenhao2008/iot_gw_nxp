@@ -133,7 +133,7 @@ uint64_t nibblestr2u64( char * nibblestr ) {
  * \param u64 uint64 number
  * \param nibblestr User provided space to receive the conversion result (minimally 16 + 1 bytes)
  */
-void u642nibblestr( uint64_t u64, char * nibblestr ) {
+void u642nibblestr( uint64_t u64, char * nibblestr ) {//-转化一个64位数到半字节字符串
     // printf( "Converting 0x%016llx\n", (unsigned long long int) u64 );
     int i = 0;
     while ( i < 16 ) {

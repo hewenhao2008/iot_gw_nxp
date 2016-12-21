@@ -313,9 +313,9 @@ teSL_Status eSL_SendMessage(uint16_t u16Type, uint16_t u16Length, void *pvMessag
             eStatus = psStatus->eStatus;
             if (eStatus == E_SL_OK)
             {
-                if (pu8SequenceNo)
+                if (pu8SequenceNo)	//*这句话特别精彩,很好的防错处理
                 {
-                    *pu8SequenceNo = psStatus->u8SequenceNo;
+                    *pu8SequenceNo = psStatus->u8SequenceNo;	//-0x8000报文中携带的序列号
                 }
             }
             free(psStatus);
@@ -345,7 +345,7 @@ teSL_Status eSL_SendMessageNoWait(uint16_t u16Type, uint16_t u16Length, void *pv
     return eStatus;
 }
 
-
+//-这里有阻塞等待
 teSL_Status eSL_MessageWait(uint16_t u16Type, uint32_t u32WaitTimeout, uint16_t *pu16Length, void **ppvMessage)
 {
     int i;
