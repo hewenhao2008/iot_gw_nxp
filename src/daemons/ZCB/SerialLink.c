@@ -508,7 +508,7 @@ teSL_Status eSL_RemoveListener(uint16_t u16Type, tprSL_MessageCallback prCallbac
 /***        Local Functions                                               ***/
 /****************************************************************************/
 
-
+//-读串口数据,如果没有立即返回,如果有那么进行最底层的转译,校验等,把最终报文进行返回
 static teSL_Status eSL_ReadMessage(uint16_t *pu16Type, uint16_t *pu16Length, uint16_t u16MaxLength, uint8_t *pu8Message)
 {
 
@@ -518,7 +518,7 @@ static teSL_Status eSL_ReadMessage(uint16_t *pu16Type, uint16_t *pu16Length, uin
     static uint16_t u16Bytes;
     static bool bInEsc = FALSE;
 
-    while(bSL_RxByte(&u8Data))
+    while(bSL_RxByte(&u8Data))	//-这里是"最底层"的读串口字节数据了
     {
         DBG_vPrintf(DBG_SERIALLINK_COMMS, "0x%02x\n", u8Data);
         switch(u8Data)
@@ -821,7 +821,7 @@ static teSL_Status eSL_MessageQueue(tsSerialLink *psSerialLink, uint16_t u16Type
 }
 
 
-static void *pvReaderThread(tsUtilsThread *psThreadInfo)
+static void *pvReaderThread(tsUtilsThread *psThreadInfo)	//-这个线程会一直在从串口中获取数据,然后组装报文,进行处理
 {
     tsSerialLink *psSerialLink = (tsSerialLink *)psThreadInfo->pvThreadData;
     tsSL_Message  sMessage;
@@ -839,7 +839,7 @@ static void *pvReaderThread(tsUtilsThread *psThreadInfo)
         sMessage.u16Length = 0xFFFF;
         
         if (eSL_ReadMessage(&sMessage.u16Type, &sMessage.u16Length, SL_MAX_MESSAGE_LENGTH, sMessage.au8Message) == E_SL_OK)
-        {
+        {//-下面是对获得的有效报文的处理,会判断是否是等待的消息,或者把消息传递过去,都是通过队列的形式实现的
             iHandled = 0;
             
             if (verbosity >= 10)
@@ -946,6 +946,7 @@ static void *pvReaderThread(tsUtilsThread *psThreadInfo)
         {
             psSerialLink->asReaderMessageQueue[i].u16Length  = 0;
             psSerialLink->asReaderMessageQueue[i].pu8Message = NULL;
+            //-下面函数用来对所有等待参数cond所指定的条件变量的线程解除阻塞，调用成功返回0，否则返回错误代码。
             pthread_cond_broadcast(&psSerialLink->asReaderMessageQueue[i].cond_data_available);
         }
     }
@@ -958,7 +959,7 @@ static void *pvReaderThread(tsUtilsThread *psThreadInfo)
 }
 
 
-static void *pvCallbackHandlerThread(tsUtilsThread *psThreadInfo)
+static void *pvCallbackHandlerThread(tsUtilsThread *psThreadInfo)	//-一直在处理队列中的信息
 {
     tsSerialLink *psSerialLink = (tsSerialLink *)psThreadInfo->pvThreadData;
 

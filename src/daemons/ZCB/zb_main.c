@@ -11,6 +11,17 @@
  * \brief ZCB-Linux program that communicated with the ZCB-JenOS over a serial port
  */
 
+/*
+本身是一个守护进程,通过串口和dongle通讯,应该是完成一个协议转换之类的东西.
+1.把串口通讯分支拎东西
+主线程 + 串口读线程 + 回调处理线程
+主线程:接收来自上层的控制命令
+串口读线程:仅仅复杂接收报文,并分发处理
+回调处理线程:周期性的完成逻辑处理关系
+
+
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1129,11 +1140,11 @@ int main(int argc, char *argv[])
     
     newDbOpen();
      
-    if (eZCB_Init(SERIAL_PORT, SERIAL_BAUDRATE) != E_ZCB_OK) {	//-里面启动了一个接收线程
+    if (eZCB_Init(SERIAL_PORT, SERIAL_BAUDRATE) != E_ZCB_OK) {	//-里面启动了一个接收线程和一个回调处理线程
         goto finish;
     }
 
-    while (bRunning) {
+    while (bRunning) {//-建立与dongle的串口通讯,直到寻找到退出
         /* Keep attempting to connect to the control bridge */
         if (eZCB_EstablishComms() == E_ZCB_OK) {
             // Wait for initial messages from control bridge
@@ -1177,7 +1188,7 @@ int main(int argc, char *argv[])
         
         int start = 0;
 
-        while ( bRunning ) {
+        while ( bRunning ) {	//?接收来自上层的控制命令
             numBytes = queueReadWithMsecTimeout( zcbQueue,
                               inputBuffer, INPUTBUFFERLEN, 4000 );
             if ( numBytes > 0 ) {

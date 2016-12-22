@@ -182,7 +182,7 @@ int zcbNodeSetDeviceID( uint16_t shortAddress, uint16_t deviceID ) {
 
 teZcbStatus eZCB_Init(char *cpSerialDevice, uint32_t u32BaudRate) {
 
-    if (eSL_Init(cpSerialDevice, u32BaudRate) != E_SL_OK) {
+    if (eSL_Init(cpSerialDevice, u32BaudRate) != E_SL_OK) {	//-首先初始化串口
         return E_ZCB_COMMS_FAILED;
     }
     

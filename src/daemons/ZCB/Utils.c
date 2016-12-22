@@ -181,7 +181,7 @@ static DWORD WINAPI dwThreadFunction(void *psThreadInfoVoid)
 }
 
 
-teUtilsStatus eUtils_ThreadStart(tprThreadFunction prThreadFunction, tsUtilsThread *psThreadInfo, teThreadDetachState eDetachState)
+teUtilsStatus eUtils_ThreadStart(tprThreadFunction prThreadFunction, tsUtilsThread *psThreadInfo, teThreadDetachState eDetachState)	//-此进程中唯一创建线程的地方
 {
     tsThreadPrivate *psThreadPrivate;
     

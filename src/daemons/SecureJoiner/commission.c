@@ -194,7 +194,7 @@ void commission( int socketHandle,
             if ( numBytes > 0 ) {
 
                 // Parse (ZCB authorize) message
-                jsonSelectNext();
+                jsonSelectNext();	//-切换下一个解析结构
 
                 jsonSetOnError(zcb_onError);
                 jsonSetOnObjectStart(zcb_onObjectStart);
