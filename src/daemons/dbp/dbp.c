@@ -112,13 +112,13 @@ int dbp_parse_data(char *input, uint32_t input_len, char *output, uint32_t outpu
         }
         
         /* command type check */
-        if(strstr(input, QUERY_LOC) != NULL){
+        if(strstr(input, QUERY_LOC) != NULL){//-命令类型匹配,找到就对应处理
                 if(strstr(input, QUERY_ROUTER_LOC) != NULL){
                         cmd = DBP_CMD_ROUTERS_LOC;
                         get_mac_address(input, mac_addr, 10);
                 }else{
-                        cmd = DBP_CMD_LOCATION;
-                        get_mac_address(input, mac_addr, 9);
+                        cmd = DBP_CMD_LOCATION;	//-输入的命令是字符串,这里转化为内部数据,换了一个表示方法而已
+                        get_mac_address(input, mac_addr, 9);	//-从输入的命令中得到需要的值
                 }
         }else if(strstr(input, QUERY_STATE) != NULL){
                 cmd = DBP_CMD_STATE_REPORT;
@@ -159,7 +159,7 @@ int dbp_parse_data(char *input, uint32_t input_len, char *output, uint32_t outpu
         return 0;
 }
 
-int dbp_report_temp(int temp, char *mac, char *output)
+int dbp_report_temp(int temp, char *mac, char *output)	//-命令查询特定设备信息并输出,此函数就实现了查询一个设备在数据库中记录的温度数值
 {
         char parent_mac[MAC_STRING_LEN+1] = {0};
         int16_t temperature = (int16_t) temp;
@@ -327,7 +327,7 @@ int dbp_report_location(char *mac, char *output)
         if(mac == NULL) return -1;
         if(output == NULL) return -1;
         
-        query_handle(DBP_CMD_LOCATION, mac, output);
+        query_handle(DBP_CMD_LOCATION, mac, output);	//-通过命令,在数据库中找到对应设备的信息,填写到输出缓冲区
         
         return 0;
 }
@@ -356,9 +356,9 @@ int dbp_report_exceeded(uint64_t mac_addr, char *mac, char *output)
         return 0;
 }
 
-static bool check_dbp(char *input, char *output)
+static bool check_dbp(char *input, char *output)	//-判断是否是数据库命令
 {
-        if( tolower(input[0]) != 'd' ) return false;
+        if( tolower(input[0]) != 'd' ) return false;	//-把字母字符转换成小写。
         if( tolower(input[1]) != 'b' ) return false;
         if( tolower(input[2]) != 'p' ) return false;
         
@@ -366,7 +366,7 @@ static bool check_dbp(char *input, char *output)
         
 }
 
-static int query_handle(DBP_CMD cmd, char *mac, char *output)
+static int query_handle(DBP_CMD cmd, char *mac, char *output)	//-执行查询返回应答,其实就是在数据库中得到需要的信息
 {
         char location[20] = {0};
         char parent[20] = {0};
@@ -390,7 +390,7 @@ static int query_handle(DBP_CMD cmd, char *mac, char *output)
         
         if(strlen(mac) != MAC_STRING_LEN){
                 if(mac[0] != '\0'){
-                        sprintf(output, "dbp error mac\r\n");
+                        sprintf(output, "dbp error mac\r\n");	//-输出信息也许就是一个说明性的字符串
                         return 0;
                 }
         }
@@ -402,7 +402,7 @@ static int query_handle(DBP_CMD cmd, char *mac, char *output)
         if ( newDbOpen() ) {
             
                 newdb_dev_t device;
-                newDbGetDevice( mac, &device );
+                newDbGetDevice( mac, &device );	//-通过Mac地址寻找到设备,在数据库中
         
                 switch(cmd){
                 case DBP_CMD_LOCATION:
@@ -544,7 +544,7 @@ static void get_mac_address(char *input, char *mac, int cmd_len)
                 }else{
                         strcpy(mac, input+cmd_len);
                 }
-        }else{
+        }else{//-从输入的命令中得到Mac地址
                 printf("pos is not NULL\n");
                 /* remove 0x and copy mac address */
                 strcpy(mac, pos+2);
@@ -552,7 +552,7 @@ static void get_mac_address(char *input, char *mac, int cmd_len)
         
 }
 
-static uint16_t dbp_swap_uint16(uint16_t val)
+static uint16_t dbp_swap_uint16(uint16_t val)	//-交换高低位
 {
         return (val << 8) | (val >> 8 );
 }

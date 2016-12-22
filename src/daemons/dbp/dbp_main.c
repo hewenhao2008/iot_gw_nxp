@@ -141,7 +141,7 @@ static void dbp_onObjectComplete(char * name) {
             printf("%s: location information received\n", __func__);
             
             /* location information */
-            dbp_location_info(mac);
+            dbp_location_info(mac);	//-获取指定设备的位置信息,通过Mac地址来区分设备
             
         }else{
             
@@ -623,10 +623,10 @@ static int dbp_update_temperature(char *mac)
     int value;
     char output[100];
     
-    value = parsingGetIntAttr("tmp");
+    value = parsingGetIntAttr("tmp");	//-通过比较名字获取内部对应数据,这样做的目的是外部形象,内部方便使用
 	if(value != INT_MIN){
 		if(dbp_report_temp(value, mac, output) == 0){
-			dbp_send_data_to_clients(output);
+			dbp_send_data_to_clients(output);	//-这里把温度发送给了客户端
 			printf("temp sent to client");
 		}
 	}
@@ -699,7 +699,7 @@ void dbp_external_send_data_to_clients(char *data)
     dbp_send_data_to_clients(data);
 }
 
-static int dbp_send_data_to_clients(char *data)
+static int dbp_send_data_to_clients(char *data)	//-数据库把数据发送给客户端通过套接字
 {
     int i, j;
     int bytes_sent = 0;
