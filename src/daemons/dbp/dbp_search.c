@@ -78,12 +78,12 @@ int dbp_search_init(void)
 	return 0;
 }
 
-static void *dbp_search_main(void *arg)
+static void *dbp_search_main(void *arg)	//-主要负责UDP向外发送,等待指令
 {
 	char loopch = 0;
 	
 	/* create datagram socket */
-	sockd = socket(AF_INET, SOCK_DGRAM, 0);
+	sockd = socket(AF_INET, SOCK_DGRAM, 0);	//-UDP数据包
 	if(sockd < 0){
 		perror("failed to create datagram socket");
 		pthread_exit(NULL);
@@ -121,11 +121,11 @@ static void *dbp_search_main(void *arg)
 		/* sleep 5 seconds */
 		sleep(5);
 		
-		if(send_message == true){
+		if(send_message == true){//-等待消息处理
 			
 			printf("%s: sending multicast message\n", __func__);
 			
-			if(sendto(sockd, message, sizeof(message), 0, (struct sockaddr*) &group_sock, sizeof(group_sock)) < 0){
+			if(sendto(sockd, message, sizeof(message), 0, (struct sockaddr*) &group_sock, sizeof(group_sock)) < 0){//-向一指定目的地发送数据,已经是最底层了
 				perror("datagram sending failed");
 			}
 			
@@ -143,7 +143,7 @@ static void *dbp_search_main(void *arg)
 	return NULL;
 }
 
-static void *dbp_search_listener(void *arg)
+static void *dbp_search_listener(void *arg)	//-监听网络上的命令,收到正确命令后发出对应消息,这里是版本信息
 {
 	int sd;
 	int reuse = 1;
@@ -193,7 +193,7 @@ static void *dbp_search_listener(void *arg)
 	while(1){
 		
 		/* receive data from multicast group */
-		if(read(sd, buffer, sizeof(buffer)) < 0){
+		if(read(sd, buffer, sizeof(buffer)) < 0){//-读来自组播的数据
 			perror("error receiving data from group");
 			continue;
 		}
@@ -201,7 +201,7 @@ static void *dbp_search_listener(void *arg)
 		printf("%s: new data has been received %s\n", __func__, buffer);
 		
 		/* parse the data */
-		if(strstr(buffer, check_cmd)){
+		if(strstr(buffer, check_cmd)){//-判断字符串str2是否是str1的子串。如果是，则该函数返回str2在str1中首次出现的地址；否则，返回NULL。
 			send_message = true;
 		}
 		
@@ -218,12 +218,12 @@ static int get_ip_address(void)
 	struct ifaddrs *ifaddr, *ifa;
 	int family, s;
 	
-	if(getifaddrs(&ifaddr) == -1){
+	if(getifaddrs(&ifaddr) == -1){//-获取本地网络接口信息，将之存储于链表中，链表头结点指针存储于__ifap中带回
 		perror("getifaddrs() failed");
 		return -1;
 	}
 	
-	for(ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next){
+	for(ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next){//-在上面的链表中寻找需要的部分
 		if(ifa->ifa_addr == NULL){
 			continue;
 		}
@@ -246,7 +246,7 @@ static int get_ip_address(void)
 		}
 	}
 	
-	ip_address_acquired = true;
+	ip_address_acquired = true;	//-寻找到了本地信息
 	
 	freeifaddrs(ifaddr);
 	return 0;

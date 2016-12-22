@@ -68,7 +68,7 @@ static void *get_in_addr(struct sockaddr *sa)
 	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-int dbp_loc_receiver_init(void)
+int dbp_loc_receiver_init(void)	//-数据库本地接收线程
 {
 	if(pthread_create(&loc_receiver_thread, NULL, &dbp_loc_receiver, NULL) != 0){
 		perror("Failed to create dbp location receiver thread");
@@ -80,7 +80,7 @@ int dbp_loc_receiver_init(void)
 	return 0;
 }
 
-static void *dbp_loc_receiver(void *arg)
+static void *dbp_loc_receiver(void *arg)	//-线程处理函数,约定的功能是接收连接,获取地址信息
 {
 	int sockfd, new_fd;
 	int yes = 1;
@@ -112,7 +112,7 @@ static void *dbp_loc_receiver(void *arg)
 	}
 	
 	/* Now bind the host address using bind() call.*/
-	if(bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0){
+	if(bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0){//-套接字绑定到本地的地址上,服务器使用
 		perror("server: bind");
 		close(sockfd);
 		return NULL;
@@ -140,25 +140,25 @@ static void *dbp_loc_receiver(void *arg)
 		printf("server: got connection from %s\n", s);
 		
 		/* receive location info from the phone here */
-		while(client_exist == true){
+		while(client_exist == true){//-如果连接存在就一直接收位置信息
 			
 			memset(buf, 0, sizeof(buf));
 			
-			byte_count = recv(new_fd, buf, sizeof buf, 0);
+			byte_count = recv(new_fd, buf, sizeof buf, 0);	//-获得套接字数据,这个已经是最底层接收了
 			
-			if(byte_count == 0){
+			if(byte_count == 0){//-如果recv函数在等待协议接收数据时网络中断了，那么它返回0。
 				newLogAdd( NEWLOG_FROM_DBP,"DBP Location Receiver connection has been closed");
 				client_exist = false;
 				break;
-			}else if(byte_count < 0){
+			}else if(byte_count < 0){//-发生错误，返回-1
 				newLogAdd( NEWLOG_FROM_DBP,"DBP Location Receiver connection error");
 				client_exist = false;
 				break;
-			}else{
+			}else{//-无错误发生，recv()返回读入的字节数。
 				newLogAdd( NEWLOG_FROM_DBP,"DBP Location Receiver received data");
 				
 				/* remove 1st 0 */
-				for(loop=0; loop<sizeof(buf)-1; loop++){
+				for(loop=0; loop<sizeof(buf)-1; loop++){//-难道协议约定了两个0之间是一个完整的报文?
 					buf[loop] = buf[loop+1];
 					if(buf[loop+1] == 0){
 						break;
@@ -166,7 +166,7 @@ static void *dbp_loc_receiver(void *arg)
 				}
 				
 				/* send to main() to be processed */
-				queueWriteOneMessage(QUEUE_KEY_DBP, buf);
+				queueWriteOneMessage(QUEUE_KEY_DBP, buf);	//-通过队列实现消息的传递
 				printf("%s: data sent to main()\n", __func__);
 				
 			}

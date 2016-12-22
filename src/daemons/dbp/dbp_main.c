@@ -217,6 +217,17 @@ static void dbp_location_info(char *mac)
     }
 }
 
+/*
+主函数本身是一个主线程.
+然后在每次客户端连接后增加一个新的线程.
+数据库搜索里面创建了两个线程:
+search_thread
+listen_thread
+数据库本地接收创建了一个线程:
+loc_receiver_thread
+主函数中创建了一个message接收线程:
+zb_msg_thread
+*/
 int main(int argc, char *argv[])
 {
     int sockfd, new_fd;
@@ -261,12 +272,12 @@ int main(int argc, char *argv[])
     
     for(p = servinfo; p != NULL; p = p->ai_next) {
         
-        if( (sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1 ) {
+        if( (sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1 ) {//-创建一个套接字
             perror("server: socket");
             continue;
         }
         
-        if(setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) {
+        if(setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1) {//-用于任意类型、任意状态套接口的设置选项值。
             perror("setsockopt");
             exit(1);
         }
@@ -275,7 +286,9 @@ int main(int argc, char *argv[])
         if(setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &yes, sizeof(int)) == -1) {
             perror("TCP_NODELAY");
         }
-        
+        //-bind就是绑定一个公共的服务地址，只有这样客户端才能找到你。打个比方，银行
+        //-是不是有个为公众所知的地址，而客户却不需要那个地址，因为到时候是客户自己
+        //-根据银行的地址找到银行的。
         if(bind(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
             close(sockfd);
             perror("server: bind");
@@ -292,21 +305,24 @@ int main(int argc, char *argv[])
     
     freeaddrinfo(servinfo);
     
-    if(listen(sockfd, 10) == -1) {
+    if(listen(sockfd, 10) == -1) {//-用listen()创建套接口并为申请进入的连接建立一个后备日志，然后便可用accept()接受连接了。
         perror("listen");
         exit(1);
     }
     
-    while(1){
-        
+    while(1){//-监视有没有客户端连接,如果有的话专门创立一个独立处理线程
+        //-本函数从s的等待连接队列中抽取第一个连接，创建一个与s同类的新的套接口并返回句柄。
+        //-如果队列中无等待连接，且套接口为阻塞方式，则accept()阻塞调用进程直至新的连接出现。
+        //-如果套接口为非阻塞方式且队列中无等待连接，则accept()返回一错误代码。已接受连接的
+        //-套接口不能用于接受新的连接，原套接口仍保持开放。
         sin_size = sizeof their_addr;
-        new_fd = accept(sockfd, (struct sockaddr *) &their_addr, &sin_size);
+        new_fd = accept(sockfd, (struct sockaddr *) &their_addr, &sin_size);	//-在一个套接口接受一个连接。
         if(new_fd == -1) {
             perror("accept");
             continue;
         }
         
-        inet_ntop(their_addr.ss_family, get_in_addr( (struct sockaddr *) &their_addr ), s, sizeof s);
+        inet_ntop(their_addr.ss_family, get_in_addr( (struct sockaddr *) &their_addr ), s, sizeof s);	//-将“二进制整数” －> “点分十进制”
         printf("server: got connection from %s\n", s);
         
         dbp_msg_receiver(new_fd);
@@ -434,14 +450,26 @@ static void dbp_msg_receiver(int socket_fd)
         return;
     }
     
-    dbp_add_socket(socket_fd, index);
-    
+    dbp_add_socket(socket_fd, index);	//-在数组中记录下来
+    //-创建线程 thread记录了线程的ID号 attr设置线程属性 fn线程执行的主函数 运行函数的参数
     if(pthread_create(&client_handler_thread, NULL, &dbp_client_handler, (void *) &index) != 0){
         perror("Failed to create zigbee message receiver thread");
         return;
     }
     
-    pthread_detach(client_handler_thread);
+    //-创建一个线程默认的状态是joinable。
+    //- 如果一个线程结束运行但没有被join,则它的状态类似于进程中的Zombie Process,即还有一部
+    //-分资源没有被回收（退出状态码），所以创建线程者应该pthread_join来等待线程运行结束，并
+    //-可得到线程的退出代码，回收其资源（类似于wait,waitpid)
+    //-但是调用pthread_join(pthread_id)后，如果该线程没有运行结束，调用者会被阻塞，在有些情
+    //-况下我们并不希望如此，比如在Web服务器中当主线程为每个新来的链接创建一个子线程进行处理
+    //-的时候，主线程并不希望因为调用pthread_join而阻塞（因为还要继续处理之后到来的链接），
+    //-这时可以在子线程中加入代码
+		//-pthread_detach(pthread_self())
+		//-或者父线程调用
+		//-pthread_detach(thread_id)（非阻塞，可立即返回）
+		//-这将该子线程的状态设置为detached,则该线程运行结束后会自动释放所有资源。
+    pthread_detach(client_handler_thread);	//-仅仅为了主线程不阻塞
     
     usleep(100*1000);
 }
@@ -451,14 +479,14 @@ static void dbp_init(void)
     int i;
     
     for(i=0; i<NUMINTATTRS; i++){
-        parsingAddIntAttr(intAttrs[i]);
+        parsingAddIntAttr(intAttrs[i]);	//-增加一个完整的名字到解析队列,这个本身应该跟数据库没有关系,是为了操作准备的
     }
     
     for(i=0; i<NUMSTRINGATTRS; i++) {
-        parsingAddStringAttr(stringAttrs[i], stringMaxlens[i]);
+        parsingAddStringAttr(stringAttrs[i], stringMaxlens[i]);	//-增加一个字符串名字到解析队列,这个的目的是什么?
     }
     
-    connection.connected = false;
+    connection.connected = false;	//-应该是还没有客户端连接到数据库
     connection.conn_number = 0;
     memset(connection.sock_fd, 0, sizeof(connection.sock_fd));
 }
@@ -606,7 +634,7 @@ static int dbp_update_temperature(char *mac)
     return 0;
 }
 
-static int dbp_get_index_number(void)
+static int dbp_get_index_number(void)	//-返回一个空的连接消息索引号
 {
     int i;
     int index = 0;
@@ -614,7 +642,7 @@ static int dbp_get_index_number(void)
     pthread_mutex_lock(&dbp_mutex);
     
     for(i=0; i<MAX_NUM_OF_CONN; i++){
-        if(connection.sock_fd[i] == 0){
+        if(connection.sock_fd[i] == 0){//-为0说明这个上还空闲,没有记录连接消息
             index = i;
             break;
         }
@@ -629,14 +657,14 @@ static int dbp_get_index_number(void)
     return index;
 }
 
-static void dbp_add_socket(int sock_fd, int index)
+static void dbp_add_socket(int sock_fd, int index)	//-把对应的套接字信息用一个数组中的结构体记录下来
 {
     pthread_mutex_lock(&dbp_mutex);
     
     if(connection.conn_number <= MAX_NUM_OF_CONN){
         connection.sock_fd[index] = sock_fd;
-        connection.conn_number++;
-        connection.connected = true;
+        connection.conn_number++;	//-记录了一共存在的连接数
+        connection.connected = true;	//-说明已经存在连接了
     }else{
         printf("%s: conn_number = %d. error, reached max number of connection\n", __func__, connection.conn_number);
     }
