@@ -120,10 +120,11 @@ void semP( int key ) {
  * \returns 1 on success, 0 on timeout or error
  */
 int semPtimeout( int key, int secs ) {
-    int semId = semget( key, 1, 0666 );
-    if ( semId < 0 ) {
+		//-当调用semget创建一个信号量时，他的相应的semid_ds结构被初始化。
+    int semId = semget( key, 1, 0666 );	//-获取与某个键关联的信号量集标识
+    if ( semId < 0 ) {//-如果成功，则返回信号量集的IPC标识符。如果失败，则返回-1
         // Semaphore does not exist yet: create
-        semId = semInit( 1, key );
+        semId = semInit( 1, key );	//-初始化一个定位在 sem 的匿名信号量。
         // Return on failure
         if ( !semId ) return 0;
     }
@@ -137,7 +138,7 @@ int semPtimeout( int key, int secs ) {
     ts.tv_sec = secs;
     ts.tv_nsec = 0;
 
-    int retval = semtimedop( semId, operations, 1, &ts );
+    int retval = semtimedop( semId, operations, 1, &ts );	//-这个应该不是最顶层的库函数,但是被成功封装了,可以作为库来使用
     if ( retval == 0 ) {
         DEBUG_PRINTF( "Successful P-operation %d (PID=%d)\n", key, getpid() );
 	return( 1 );
@@ -164,7 +165,7 @@ void semPautounlock( int key, int secs ) {
  * \brief V-operation on semaphore
  * \param key Key to the semaphore
  */
-void semV( int key ) {
+void semV( int key ) {//-PV 操作通过调用semop函数来实现。
     int semId = semget( key, 1, 0666 );
     if ( semId < 0 ) {
         // Semaphore does not exist yet: create
@@ -192,7 +193,7 @@ void semV( int key ) {
         if ( !semInit( 0, key ) ) return;
     }
 #else
-    int retval = semop( semId, operations, 1 );
+    int retval = semop( semId, operations, 1 );	//-信号量的值与相应资源的使用情况有关，当它的值大于 0 时，表示当前可用的资源数的数量；当它的值小于 0 时，其绝对值表示等待使用该资源的进程个数。
     if ( retval == 0 ) {
         DEBUG_PRINTF( "Successful V-operation %d\n", key );
     } else {

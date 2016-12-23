@@ -175,7 +175,7 @@ static char * newdb_zcb_columns[NUM_COLUMNS_ZCB] = {
 /**
  * \brief dbSave lock
  */
-void newDbFileLock( void ) {
+void newDbFileLock( void ) {//-通过控制信号量控制别的进程访问,这里是禁止别人一起访问
     // Do not allow mutiple threads to save the dB at the same time
     semPautounlock( NEWDB_SEMSAVEKEY, 20 );
     DEBUG_PRINTF( "DB save locked\n" );
@@ -200,7 +200,7 @@ void newDbFileUnlock( void ) {
  * \param len Size in bytes of this table-part
  * \returns 1 on success, 0 on error
  */
-static int newDbSaveTable( char * tablename, char * data, int len ) {
+static int newDbSaveTable( char * tablename, char * data, int len ) {//-把内容保存到数据库指定的文件中
     DEBUG_PRINTF( "DB save table %s (%d)\n", tablename, len );
     struct stat sb;
     char filename[40];    
@@ -209,11 +209,11 @@ static int newDbSaveTable( char * tablename, char * data, int len ) {
     if ( tablename && data && len > 0 ) {
         
         // Make full filenames
-        sprintf( filename, "%siot_%s.db", DB_FILEPATH, tablename );
+        sprintf( filename, "%siot_%s.db", DB_FILEPATH, tablename );	//-数据库永久保存是通过文件实现的,所以存在恢复一说
         sprintf( backup, "%siot_%s.bck", DB_FILEPATH, tablename );
         
         // Check if we still have a database file
-        if ( stat(filename, &sb) == -1) {
+        if ( stat(filename, &sb) == -1) {//-通过文件名filename获取文件信息，并保存在buf所指的结构体stat中
             DEBUG_PRINTF( "No dB file found. Stat %s, errno = %d\n", filename, errno );
         } else {
             // Yes, so we can throw away the backup
@@ -222,7 +222,7 @@ static int newDbSaveTable( char * tablename, char * data, int len ) {
                 DEBUG_PRINTF( "No backup found. Stat %s, errno = %d\n", backup, errno );
             } else {
                 // Yes, we have a backup file
-                if ( remove( backup ) != 0 ) {
+                if ( remove( backup ) != 0 ) {//-删除指定的文件
                     printf( "Error removing database file backup %s (%d - %s)\n",
                             backup, errno, strerror( errno ) );
                     newLogAdd( NEWLOG_FROM_DATABASE, "Error removing database file" );
@@ -230,7 +230,7 @@ static int newDbSaveTable( char * tablename, char * data, int len ) {
                     return 0;
                 }
             }
-                
+            //-如果存在备份文件就需要删除,因为现在的文件将是备份文件了    
             // Rename the database file to the backup
             if ( rename( filename, backup ) != 0 ) {
                 printf( "Error backing-up database file %s (%d - %s)\n",
@@ -262,7 +262,7 @@ static int newDbSaveTable( char * tablename, char * data, int len ) {
                 char * buf = data;
                 int byteswritten;
                 while ( ( bytestowrite > 0 ) &&
-                        ( byteswritten = write( fd, buf, bytestowrite ) ) >= 0 ) {
+                        ( byteswritten = write( fd, buf, bytestowrite ) ) >= 0 ) {//-实现向数据库文件中写内容
                     bytestowrite -= byteswritten;
                     buf += byteswritten;
                 }
@@ -286,7 +286,7 @@ static int newDbSaveTable( char * tablename, char * data, int len ) {
  * \brief Save the IoT database as different tables
  * \returns 1 on success, 0 on error
  */
-int newDbSave( void ) {
+int newDbSave( void ) {//-数据库内容的保存是通过指定文件来存储实现的,只是内部操作使用空想空间,以便多线程访问
     DEBUG_PRINTF( "DB save\n" );
     
     if ( newDbSharedMemory ) {
@@ -419,7 +419,7 @@ static int newDbRestoreTable( char * tablename, char * data, int len ) {
  * \brief Restores the IoT database from different tables. Note: needs to be called inside semaphore section
  * \returns 1 on success, 0 on error
  */
-static int newDbRestore( void ) {
+static int newDbRestore( void ) {//-还原数据库数据
     
     int ret = 0;
     
@@ -427,7 +427,7 @@ static int newDbRestore( void ) {
     
     newDbFileLock();
     
-    if ( newDbSharedMemory ) {
+    if ( newDbSharedMemory ) {//-如果共享内存存在,那么就操作
         int len = sizeof( newdb_t );
         // Create a tmp buffer
         char * dbCopy = malloc( len );
@@ -447,7 +447,7 @@ static int newDbRestore( void ) {
 #endif
             newDbRestoreTable( "zcb",      (char *)pnewdb->zcb,      sizeof( pnewdb->zcb ) );
 
-            memcpy( newDbSharedMemory, dbCopy, len );
+            memcpy( newDbSharedMemory, dbCopy, len );	//-分散数据组织之后一次复制到数据库中
             ret = 1;
             
 #else // DB_MULTIPLE_FILES
@@ -478,7 +478,7 @@ static int newDbRestore( void ) {
         }
     }
     
-    newDbFileUnlock();
+    newDbFileUnlock();	//-解锁
     
     if ( ret ) {
         DEBUG_PRINTF( "DB restore succeeded\n" );
@@ -499,16 +499,16 @@ static int newDbRestore( void ) {
  * \returns 1 on success, 0 on error
  */
 
-int newDbOpen( void ) {
+int newDbOpen( void ) {//-打开数据库其实就是创建了一个共享空间可以访问,本质上还是一个数据结构
 
     int shmid = -1, created = 0, ret = 0;
     
     LL_LOG( "/tmp/dbby", "In newDbOpen" );
     
-    semPautounlock( NEWDB_SEMKEY, 10 );
+    semPautounlock( NEWDB_SEMKEY, 10 );	//-为了进程间协调工作,这里创建了一个信号量
 
     // Locate the segment
-    if ((shmid = shmget(NEWDB_SHMKEY, sizeof(newdb_t), 0666)) < 0) {
+    if ((shmid = shmget(NEWDB_SHMKEY, sizeof(newdb_t), 0666)) < 0) {//-得到一个共享内存标识符或创建一个共享内存对象并返回共享内存标识符
         LL_LOG( "/tmp/dbby", "\tDB SHM not found" );
         // SHM not found: try to create
         if ((shmid = shmget(NEWDB_SHMKEY, sizeof(newdb_t), IPC_CREAT | 0666)) < 0) {
@@ -519,7 +519,7 @@ int newDbOpen( void ) {
             LL_LOG( "/tmp/dbby", "\tDB SHM create error" );
         } else {
             // Creation Successful: init structure
-            created = 1;
+            created = 1;	//-说明共享内存创建成功了
             DEBUG_PRINTF( "Created new SHM for DB\n" );
             LL_LOG( "/tmp/dbby", "\tDB SHM created" );
         }
@@ -531,29 +531,29 @@ int newDbOpen( void ) {
 
     if ( shmid >= 0 ) {
         // Attach the segment to our data space
-        if ((newDbSharedMemory = shmat(shmid, NULL, 0)) == (char *) -1) {
+        if ((newDbSharedMemory = shmat(shmid, NULL, 0)) == (char *) -1) {//-连接共享内存标识符为shmid的共享内存，连接成功后把共享内存区对象映射到调用进程的地址空间，随后可像本地空间一样访问
             perror("shmat");
             printf( "Error attaching SHM for DB\n" );
             newLogAdd( NEWLOG_FROM_DATABASE, "Error attaching SHM for DB" );
             newDbSharedMemory = NULL;
             LL_LOG( "/tmp/dbby", "\tDB SHM attach error" );
             
-        } else {
+        } else {//-成功：附加好的共享内存地址
             DEBUG_PRINTF( "Successfully attached SHM for DB (%d)\n", created );
             LL_LOG( "/tmp/dbby", "\tAttached to DB SHM" );
             if ( created ) {
                 
                 LL_LOG( "/tmp/dbby", "\tDB SHM created thus try to restore" );
                 // Wipe memory
-                memset( newDbSharedMemory, 0, sizeof( newdb_t ) );
+                memset( newDbSharedMemory, 0, sizeof( newdb_t ) );	//-访问本地空间一样访问共享内存
                 
                 // Newly created: Try read from file
-                if ( !newDbRestore() ) {
+                if ( !newDbRestore() ) {//-首先努力还原数据库,如果失败的话下面就重新赋默认值
                     LL_LOG( "/tmp/dbby", "\tDB Restore failed: init" );
                     DEBUG_PRINTF( "dB Restore from file failed: init structure\n" );
-                    newdb_t * pnewdb = (newdb_t *)newDbSharedMemory;
+                    newdb_t * pnewdb = (newdb_t *)newDbSharedMemory;	//-准备开始赋默认值
                     
-                    pnewdb->version = NEWDB_VERSION;
+                    pnewdb->version = NEWDB_VERSION;	//-数据库版本号,这里的数据库也是一个结构体,只是他在空闲内存中,大家都可以有序的访问
                     
                     int i;
                     
@@ -581,7 +581,7 @@ int newDbOpen( void ) {
         }
     }
 
-    semV( NEWDB_SEMKEY );
+    semV( NEWDB_SEMKEY );	//-PV操作与信号量的处理相关，P表示通过的意思，V表示释放的意思。
     
     if ( ret ) {
         DEBUG_PRINTF( "Opening DB succeeded\n" );
@@ -599,7 +599,7 @@ int newDbOpen( void ) {
  * \brief Close the IoT database
  * \returns 1 on success, 0 on error
  */
-int newDbClose( void ) {
+int newDbClose( void ) {//-关闭数据库什么也没干
     return 1;
 }
 
@@ -1881,15 +1881,15 @@ int newDbDeleteSystem( char * name ) {
 int newDbDeleteDevice( char * mac ) {
     int found = 0;
     if ( newDbSharedMemory && mac ) {
-        newdb_t * pnewdb = (newdb_t *)newDbSharedMemory;
+        newdb_t * pnewdb = (newdb_t *)newDbSharedMemory;	//-指向共享内存
         int i;
         int now = (int)time( NULL );
         semP( NEWDB_SEMKEY );
         for ( i=0; i<NEWDB_MAX_DEVICES && !found; i++ ) {
-            if ( strcmp( pnewdb->devices[i].mac, mac ) == 0 ) {
-                pnewdb->devices[i].mac[0] = '\0';
-                pnewdb->numwrites++;
-                pnewdb->lastupdate_devices = now;
+            if ( strcmp( pnewdb->devices[i].mac, mac ) == 0 ) {//-通过mac地址区分设备
+                pnewdb->devices[i].mac[0] = '\0';	//-把mac地址清除就删除了设备了
+                pnewdb->numwrites++;	//-记录正确操作数据的次数?
+                pnewdb->lastupdate_devices = now;	//-表示数据库更新了
                 found = 1;
             }
         }

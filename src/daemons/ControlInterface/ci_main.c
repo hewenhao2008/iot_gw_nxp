@@ -198,7 +198,7 @@ static void ci_onObjectComplete(char * name) {
         }
 
     } else if ( strcmp( name, "dbedit" ) == 0 ) {     // From NFC reader
-        if ( !dbEditHandle() ) {
+        if ( !dbEditHandle() ) {	//-这里组织了各种设备之间的协调处理
             error = iotError;
         }
 
@@ -476,7 +476,7 @@ int main( int argc, char * argv[] ) {
         
         jsonSetOnError(ci_onError);
         jsonSetOnObjectStart(ci_onObjectStart);
-        jsonSetOnObjectComplete(ci_onObjectComplete);
+        jsonSetOnObjectComplete(ci_onObjectComplete);	//-这里的一切是控制解析器的
         jsonSetOnArrayStart(ci_onArrayStart);
         jsonSetOnArrayComplete(ci_onArrayComplete);
         jsonSetOnString(ci_onString);
