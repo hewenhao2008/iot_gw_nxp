@@ -62,17 +62,17 @@ typedef struct msgbuf {
  * \param forwrite User can specify if he also will write to the queue
  * \returns A handle to the queue, or -1 in case of an error (and sets the global iotError)
  */
-int queueOpen( queueKey key, int forwrite ) {
+int queueOpen( queueKey key, int forwrite ) {//-使用了消息队列,这个地方不是自己创建的一个数据结构,而是使用的系统函数
 
     int mq = -1;
     DEBUG_DETAIL( "Opening queue %d and configure (%d) ...\n", key, forwrite );
 
-    key_t kt = key + QUEUE_KEYS_OFFSET;
+    key_t kt = key + QUEUE_KEYS_OFFSET;	//-系统建立IPC通讯（如消息队列、共享内存时）必须指定一个ID值。通常情况下，该id值通过ftok函数得到。
     
-    mq = msgget( kt, 0666 );
+    mq = msgget( kt, 0666 );	//-用于创建一个新的或打开一个已经存在的消息队列，此消息队列与key相对应。
     DEBUG_DETAIL( "Queue mq = %d\n", mq );
 
-    if ( mq == -1 ) {
+    if ( mq == -1 ) {//-创建失败返回-1
         if ( errno == 2 ) {
             DEBUG_PRINTF( "Queue does not exist yet, create it\n" );
             mq = msgget( kt, 0666 | IPC_CREAT );
@@ -84,7 +84,7 @@ int queueOpen( queueKey key, int forwrite ) {
         } else {
             printf( "Error opening queue %d (%d - %s)\n",
                 key, errno, strerror( errno ) );
-            iotError = IOT_ERROR_QUEUE_OPEN;
+            iotError = IOT_ERROR_QUEUE_OPEN;	//-记录错误的类型
         }
     } else {
         DEBUG_DETAIL( "Queue %d opened\n", mq );
@@ -111,7 +111,7 @@ int queueWrite( int queue, char * message ) {
 
     DEBUG_PRINTF( "QW (%d): %s", len, message );
 
-    if ( len > ( MAXMESSAGESIZE - 2 ) ) {
+    if ( len > ( MAXMESSAGESIZE - 2 ) ) {//-一次填写的最大长度不能太大
         iotError = IOT_ERROR_QUEUE_BUFSIZE;
         return( 0 );
     }
@@ -123,7 +123,7 @@ int queueWrite( int queue, char * message ) {
     dump( SEND_BUFFER.mdata, len );
 #endif
 
-    if ( msgsnd( queue, &SEND_BUFFER, len, 0 ) < 0 ) {
+    if ( msgsnd( queue, &SEND_BUFFER, len, 0 ) < 0 ) {//-msgrcv()可以从消息队列中读取消息，msgsnd()将一个新的消息写入队列。
         printf( "Error writing to queue (%d - %s)\n",
              errno, strerror( errno ) );
         iotError = IOT_ERROR_QUEUE_WRITE;
@@ -143,7 +143,7 @@ int queueWrite( int queue, char * message ) {
  * \param size Size of the user provided string buffer
  * \returns The length of the received message
  */
-int queueRead( int queue, char * message, int size ) {
+int queueRead( int queue, char * message, int size ) {//-很简单的一个函数,是直接的库函数操作,仅仅加了简单的错误标示和转存,没有其它逻辑处理
 
     msgbuf_t RECEIVE_BUFFER;
 
@@ -183,7 +183,7 @@ int queueRead( int queue, char * message, int size ) {
  * \param msec Unblocking timeout
  * \returns The length of the received message
  */
-int queueReadWithMsecTimeout( int queue, char * message, int size, int msec ) {
+int queueReadWithMsecTimeout( int queue, char * message, int size, int msec ) {//-多了一个延时等待的功能
 
     msgbuf_t RECEIVE_BUFFER;
 
@@ -241,7 +241,7 @@ int queueReadWithMsecTimeout( int queue, char * message, int size, int msec ) {
  * \param message Message string to write
  * \returns 1 on success, or 0 on error (and sets the global iotError)
  */
-int queueWriteOneMessage( queueKey key, char * message ) {
+int queueWriteOneMessage( queueKey key, char * message ) {//-把库函数连接起来使用了,实现了消息队列的打开写关闭整个流程
     int queue = -1;
     if ( ( queue = queueOpen( key, 1 ) ) != -1 ) {
 
@@ -268,8 +268,8 @@ int queueWriteOneMessage( queueKey key, char * message ) {
 int queueGetNumMessages( int queue ) {
     int num = -1;
     struct msqid_ds buf;
-    if ( msgctl( queue, IPC_STAT, &buf ) != -1 ) {
-        num = buf.msg_qnum;
+    if ( msgctl( queue, IPC_STAT, &buf ) != -1 ) {//-控制对消息队列的操作:读取消息队列的数据结构msqid_ds，并将其存储在b u f指定的地址中。
+        num = buf.msg_qnum;	//-Current number of messagesin queue
     } else {
         printf( "Error checking queue %d (%d - %s)\n",
                   queue, errno, strerror( errno ) );

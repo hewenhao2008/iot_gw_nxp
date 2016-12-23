@@ -221,12 +221,14 @@ static void dbp_location_info(char *mac)
 主函数本身是一个主线程.
 然后在每次客户端连接后增加一个新的线程.
 数据库搜索里面创建了两个线程:
-search_thread
-listen_thread
+search_thread	搜索的主线程
+listen_thread 监听线程
 数据库本地接收创建了一个线程:
-loc_receiver_thread
+loc_receiver_thread	接收连接获取地址消息
 主函数中创建了一个message接收线程:
-zb_msg_thread
+zb_msg_thread 这个应该是数据库的输入点
+
+这个线程主要完成了数据库的管理工作,具体的操作并没有
 */
 int main(int argc, char *argv[])
 {
@@ -332,7 +334,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-static void *zigbee_msg_receiver(void *arg)
+static void *zigbee_msg_receiver(void *arg)	//-zigbee消息接收处理
 {
     int i;
 #if 0
@@ -351,7 +353,7 @@ static void *zigbee_msg_receiver(void *arg)
         jsonSetOnArrayComplete(dbp_onArrayComplete);
         jsonSetOnString(dbp_onString);
         jsonSetOnInteger(dbp_onInteger);
-        jsonReset();
+        jsonReset();	//-对解析器结构体赋初值
         
         int numBytes = 0;
         
@@ -360,10 +362,10 @@ static void *zigbee_msg_receiver(void *arg)
             numBytes = queueRead(dbpQueue, inputBuffer, INPUTBUFFERLEN);
             printf("Message received. numBytes = %d\n", numBytes);
             
-            jsonReset();
+            jsonReset();	//-复位解析器
             
             for(i=0; i<numBytes; i++){
-                jsonEat(inputBuffer[i]);
+                jsonEat(inputBuffer[i]);	//-一个字节一个字节的解析数据流
             }
             
 #if 0
@@ -414,9 +416,9 @@ static void *dbp_client_handler(void *arg)
         }else{
             printf("Message received from client\n");
             /* pass it to dpb parser */
-            dbp_parse_data(buf, sizeof(buf), output, 512, &node_cmd);
+            dbp_parse_data(buf, sizeof(buf), output, 512, &node_cmd);	//-对接收到的信息,让分析器处理
             /* if it is close link command stop here */
-            if(strcmp(output, "dbp close") == 0){
+            if(strcmp(output, "dbp close") == 0){//-这里是最简单直接的一个客户端命令处理
                 memset(buf, 0, sizeof(buf));
                 memset(output, 0, sizeof(output));
                 close(socket_fd);
@@ -424,7 +426,7 @@ static void *dbp_client_handler(void *arg)
                 break;
             }else if(strcmp(output, "dbp node") == 0){
                 if(node_cmd != NULL){
-                    bytes_sent = send(socket_fd, node_cmd, strlen(node_cmd), 0);
+                    bytes_sent = send(socket_fd, node_cmd, strlen(node_cmd), 0);	//-对客户端进行消息响应,这里就发送了出去
                 }
             }else{
                 bytes_sent = send(socket_fd, output, strlen(output), 0);
@@ -689,7 +691,7 @@ static void dbp_remove_socket(int index)
     pthread_mutex_unlock(&dbp_mutex);
 }
 
-static int dbp_get_socket(int index)
+static int dbp_get_socket(int index)	//-获得对应线程的套接字描述符
 {
     return connection.sock_fd[index];
 }
