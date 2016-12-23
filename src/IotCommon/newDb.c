@@ -638,11 +638,11 @@ int newDbGetSystem( char * name, newdb_system_t * psys ) {
     if ( newDbSharedMemory && name && psys) {
         newdb_t * pnewdb = (newdb_t *)newDbSharedMemory;
         int i;
-        semP( NEWDB_SEMKEY );
+        semP( NEWDB_SEMKEY );	//-加锁
         for ( i=0; i<NEWDB_MAX_SYSTEM && !found; i++ ) {
             DEBUG_PRINTF( "Search system %s (%d) with name %s\n", pnewdb->system[i].name, i, name );
             if ( strcmp( pnewdb->system[i].name, name ) == 0 ) {
-                memcpy( psys, &pnewdb->system[i], sizeof( newdb_system_t ) );
+                memcpy( psys, &pnewdb->system[i], sizeof( newdb_system_t ) );	//-指针赋值
                 found = 1;
                 index = i;
             }
@@ -667,7 +667,7 @@ int newDbGetSystem( char * name, newdb_system_t * psys ) {
  * \param psys Pointer to a caller's entry structure
  * \returns 1 on success, 0 on error
  */
-int newDbGetNewSystem( char * name, newdb_system_t * psys ) {
+int newDbGetNewSystem( char * name, newdb_system_t * psys ) {//-数据库中获得一个新的系统元素
     int added = 0, index = 0;
     index = index;   // Compiler warning
     if ( newDbSharedMemory && name && psys ) {
@@ -712,7 +712,7 @@ int newDbGetNewSystem( char * name, newdb_system_t * psys ) {
  * \param psys Pointer to an entry structure that was obtained by a get-function
  * \returns 1 on success, 0 on error
  */
-int newDbSetSystem( newdb_system_t * psys ) {
+int newDbSetSystem( newdb_system_t * psys ) {//-设置了时间,返回了地址
     if ( newDbSharedMemory && psys && ( psys->id >= 0 && psys->id < NEWDB_MAX_SYSTEM ) ) {
         int now = (int)time( NULL );
         psys->lastupdate = now;

@@ -291,7 +291,7 @@ static char convertPrintable( char c ) {
  * \param socketHandle Handle to the client's TCP socket
  */
 
-static void handleClient( int socketHandle ) {
+static void handleClient( int socketHandle ) {//-负责对客户端发来的消息进行解析处理
 
     newDbOpen();
     
@@ -311,7 +311,7 @@ static void handleClient( int socketHandle ) {
         // len = socketRead( socketHandle, socketInputBuffer, INPUTBUFFERLEN ); 
         len = socketReadWithTimeout( socketHandle, 
                   socketInputBuffer, INPUTBUFFERLEN, 10 ); 
-        if ( len <= 0 ) {
+        if ( len <= 0 ) {//-连接断开了进程就可以退出了
             ok = 0;
         } else {
             int i;
@@ -410,7 +410,7 @@ int main( int argc, char * argv[] ) {
     int skip;
     signed char opt;
     
-    initChildren();
+    initChildren();	//-给一个结构赋初值
 
     // Install signal handlers
     signal(SIGTERM, vQuitSignalHandler);
@@ -422,7 +422,7 @@ int main( int argc, char * argv[] ) {
     strcpy( socketHost, SOCKET_HOST );
     strcpy( socketPort, SOCKET_PORT );
 
-    while ( ( opt = getopt( argc, argv, "hH:P:c" ) ) != -1 ) {
+    while ( ( opt = getopt( argc, argv, "hH:P:c" ) ) != -1 ) {//-根据启动时候的参数进行部分操作
         switch ( opt ) {
         case 'h':
             printf( "Usage: ci [-H host] [-P port] [-c]\n\n");
@@ -448,7 +448,7 @@ int main( int argc, char * argv[] ) {
 
     newLogAdd( NEWLOG_FROM_CONTROL_INTERFACE, "Control Interface Started" );
     
-    newDbOpen();
+    newDbOpen();	//-有就打开,没有就创建
     
     // Install DB save thread
     pthread_t tid;
@@ -467,13 +467,13 @@ int main( int argc, char * argv[] ) {
 #endif
 
     // Add sysstart timestamp in system dB
-    newDbSystemSaveIntval( "sysstart", (int )time(NULL) );
+    newDbSystemSaveIntval( "sysstart", (int )time(NULL) );	//-实实在在向数据库中填写了数据,但是仅仅是填写到了共享内存中,到文件中还需要其他写
     
     newLogAdd( NEWLOG_FROM_CONTROL_INTERFACE, "Opening host socket" );
 
     int serverSocketHandle = socketOpen( socketHost, socketPort, 1 );
     if ( serverSocketHandle >= 0 ) {
-        
+        //-好多程序里面都使用了这样的解析器,但是实际就定义了两个,所以应该是局部变量,这样每个程序段中都有,内部保持不变
         jsonSetOnError(ci_onError);
         jsonSetOnObjectStart(ci_onObjectStart);
         jsonSetOnObjectComplete(ci_onObjectComplete);	//-这里的一切是控制解析器的
@@ -498,7 +498,7 @@ int main( int argc, char * argv[] ) {
         printf( "Waiting for incoming requests from socket %s/%s ...\n",
             socketHost, socketPort );
 
-        while ( running ) {
+        while ( running ) {//-持续等待客户端连接,然后处理客户端信息
 
             iotError = IOT_ERROR_NONE;
 
@@ -509,7 +509,7 @@ int main( int argc, char * argv[] ) {
                     
 #if 1
                     pid_t childPID;
-                    childPID = fork();
+                    childPID = fork();	//-创建一个与原来进程几乎完全相同的进程
 
                     if ( childPID < 0 ) {
                         newLogAdd( NEWLOG_FROM_CONTROL_INTERFACE, "Error creating child process\n" );
@@ -532,7 +532,7 @@ int main( int argc, char * argv[] ) {
                     } else {
                         // Parent
                         socketClose( clientSocketHandle );
-                        if ( addChild( childPID ) >= 0 ) {
+                        if ( addChild( childPID ) >= 0 ) {//-把进程ID存储起来
                             int num = numChildren();
                             if ( num >= MAXCHILDREN ) {
                                 // Max number of children received: wait for
@@ -564,7 +564,7 @@ int main( int argc, char * argv[] ) {
                 }
             }
 
-            if ( skip++ > 10 ) {
+            if ( skip++ > 10 ) {//-最大10个子进程
                 skip = 0;
                 checkOpenFiles( 5 );   // STDIN,STDOUT,STDERR,ServerSocket,DB
             }

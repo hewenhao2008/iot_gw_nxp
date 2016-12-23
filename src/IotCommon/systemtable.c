@@ -69,7 +69,7 @@ char * newDbSystemGetString( char * name, char * str ) {
  * \param intval New value
  * \returns 1 on success, or 0 on error
  */
-int newDbSystemSaveIntval( char * name, int intval ) {
+int newDbSystemSaveIntval( char * name, int intval ) {//-通过名字向数据库中填写一个整数
     newdb_system_t sys;
     if ( newDbGetSystem( name, &sys ) ) {
         sys.intval = intval;
