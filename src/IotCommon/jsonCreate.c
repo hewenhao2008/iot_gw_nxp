@@ -40,21 +40,21 @@ static char jsonMessage[MAXJSONMESSAGE+2];
 // Constructors
 // ------------------------------------------------------------------
 
-static void catString( char * String ) {
+static void catString( char * String ) {//-增加到已有字符串的后面
     if ( ( strlen( jsonMessage ) + strlen( String ) ) < MAXJSONMESSAGE ) {
-        strcat( jsonMessage, String );
+        strcat( jsonMessage, String );	//-将两个char类型连接
     } else {
         printf( "Error: overflow in jsonCreate\n" );
     }
 }
 
-static void catName( char * name ) {
+static void catName( char * name ) {//-形成JSON语法中的名字
     char buf[MAXNAME+2];
     sprintf( buf, "\"%s\"", name );
-    catString( buf );
+    catString( buf );	//-连接到前面字符串的后面
 }
 
-static void catNameValueInt( char * name, int value ) {
+static void catNameValueInt( char * name, int value ) {//-以前增加名字和值对
     char buf[MAXNAMEVALUE+2];
     sprintf( buf, "\"%s\":%d", name, value );
     catString( buf );

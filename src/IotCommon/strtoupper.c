@@ -21,7 +21,7 @@
  */
 char * strtoupper( char * str ) {
     char * c = str;
-    while ( ( *c = toupper( *c ) ) ) {
+    while ( ( *c = toupper( *c ) ) ) {	//-将字符c转换为大写英文字母
         c++;
     }
     return( str );

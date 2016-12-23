@@ -81,12 +81,12 @@ static void sj_onObjectStart(char * name) {
 static void sj_onObjectComplete(char * name) {
     // printf("onObjectComplete( %s )\n", name);
     if ( strcmp( name, "linkinfo" ) == 0 ) {
-        linkinfo_read = linkinfoHandle();
+        linkinfo_read = linkinfoHandle();	//-获取内部数据
 
         if ( linkinfo_read != NULL ) {
             commission( globalClientSocketHandle,
                         linkinfo_read->mac,
-                        linkinfo_read->linkkey );
+                        linkinfo_read->linkkey );	//-里面完成了一种类型的接收解析和应答
         }
     }
 }
@@ -135,7 +135,7 @@ void handleClient( int socketHandle ) {
     while( ok ) {
         int len;
         len = socketRead( socketHandle, socketInputBuffer, INPUTBUFFERLEN ); 
-        if ( len <= 0 ) {
+        if ( len <= 0 ) {//-断开连接就退出
             ok = 0;
         } else {
             // printf( "Incoming packet, length %d\n", len );
@@ -143,7 +143,7 @@ void handleClient( int socketHandle ) {
             int i;
             for ( i=0; i<len; i++ ) {
                 // printf( "%c", socketInputBuffer[i] );
-                jsonEat( socketInputBuffer[i] );
+                jsonEat( socketInputBuffer[i] );	//-解析接收到的命令,并对应处理
             }
         }
     }
@@ -178,7 +178,7 @@ static void vQuitSignalHandler( int sig ) {
  * \param argc Number of command-line parameters
  * \param argv Parameter list (-h = help, -H <ip> is IP address, -P <port> = TCP port)
  */
-int main( int argc, char * argv[] ) {
+int main( int argc, char * argv[] ) {//-这个处理逻辑就特别简单,等待客户端连接,然后进行交互信息,一个断开了,才可以换下一个
     signed char opt;
 
     signal( SIGTERM, vQuitSignalHandler );
@@ -221,7 +221,7 @@ int main( int argc, char * argv[] ) {
 
         printf( "Init parsers ...\n" );
 
-        linkinfoInit();
+        linkinfoInit();	//-初始化JSON的解析工具结构体
 
         printf( "Waiting for clients to serve from socket %s/%s ...\n",
             socketHost, socketPort );

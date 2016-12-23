@@ -135,7 +135,7 @@ void zcb_onString(char * name, char * value) {
     }
 }
 
-void zcb_onInteger(char * name, int value) {
+void zcb_onInteger(char * name, int value) {	//-把数据根据名字填写到对应的地方
     DEBUG_PRINTF("onInteger( %s, %d )\n", name, value);
     if ( strcmp( name, "keyseq" ) == 0 ) {
         keyseq = value;
@@ -165,10 +165,10 @@ void commission( int socketHandle,
 
     int joinerQueue = -1;
     
-    strtoupper( mac );
+    strtoupper( mac );	//-字母转化为大写
 
     // Assemble JSON authorize-message towards coordinator
-    char * message = jsonCmdAuthorizeRequest( mac, linkkey );
+    char * message = jsonCmdAuthorizeRequest( mac, linkkey );	//-组织一个JSON语句,准备发送出去即通讯指令
     char * response;
 
     // Send message to the ZCB and Wait for response on joiner queue
@@ -181,10 +181,10 @@ void commission( int socketHandle,
 
         // Flush the joiner queue
         while ( queueReadWithMsecTimeout( joinerQueue, queueInputBuffer,
-                                          MAXMESSAGESIZE, 100 ) > 0 ) ;
+                                          MAXMESSAGESIZE, 100 ) > 0 ) ;	//-从消息队列中获取数据
 
         // Send to the ZCB message queue
-        if ( queueWriteOneMessage( QUEUE_KEY_ZCB_IN, message ) ) {
+        if ( queueWriteOneMessage( QUEUE_KEY_ZCB_IN, message ) ) {//-向特定的消息队列中写入内容
 
             printf( "Wait for a response on the joiner queue ...\n" );
 
@@ -202,7 +202,7 @@ void commission( int socketHandle,
                 jsonSetOnArrayStart(zcb_onArrayStart);
                 jsonSetOnArrayComplete(zcb_onArrayComplete);
                 jsonSetOnString(zcb_onString);
-                jsonSetOnInteger(zcb_onInteger);
+                jsonSetOnInteger(zcb_onInteger);	//-如果接收到的消息经过解析之后有这样的数值,然后就记录下来
                 jsonReset();
 
                 zcbOk = 0;
@@ -210,7 +210,7 @@ void commission( int socketHandle,
                 int i;
                 for ( i=0; i<numBytes; i++ ) {
                     DEBUG_PRINTF( "%c", queueInputBuffer[i] );
-                    jsonEat( queueInputBuffer[i] );
+                    jsonEat( queueInputBuffer[i] );	//-对接收到的消息进行解析并作出反应
                 }
 
                 jsonSelectPrev();
@@ -220,7 +220,7 @@ void commission( int socketHandle,
 
                     // Assemble JSON join-secure-message towards client
                     response = jsonJoinSecure( channel, keyseq,
-                           pan, extpan, nwkey, mic, tcaddress );
+                           pan, extpan, nwkey, mic, tcaddress );	//-形成了一个完整的指令,可以直接发送通讯了
 
                 } else {
                     response = jsonError( IOT_ERROR_AUTHORIZE_RESPONSE );
@@ -232,7 +232,7 @@ void commission( int socketHandle,
             }
 
             // Output the response over the socket to the client
-            socketWrite( socketHandle, response, strlen( response ) );
+            socketWrite( socketHandle, response, strlen( response ) );	//-这里把准备好的消息通过套接字发送出去
 
         } else {
             printf( "Error sending authorize to the ZCB queue\n" );

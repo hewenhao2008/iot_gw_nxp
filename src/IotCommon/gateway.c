@@ -131,17 +131,17 @@ char * myHostname( void ) {
  * \returns The number of open file descriptors
  */
 int checkOpenFiles( int mentionAbove ) {
-    int i, num = getdtablesize();
+    int i, num = getdtablesize();	//-返回所在进程的文件描述附表的项数，即该进程打开的文件数目。
     int numOpen = 0;
 
     // printf( "cof: num = %d\n", num );
 
     for ( i=0; i<num; i++ ) {
 
-        int fd_flags = fcntl( i, F_GETFD );
+        int fd_flags = fcntl( i, F_GETFD );	//-改变已打开的文件性质,F_GETFD取得close-on-exec旗标。
         if ( fd_flags != -1 ) {
 
-            int fl_flags = fcntl( i, F_GETFL );
+            int fl_flags = fcntl( i, F_GETFL );//-F_GETFL 取得文件描述符状态旗标，此旗标为open（）的参数flags。
             if ( fl_flags != -1 ) {
             
                 char path[256];
@@ -149,12 +149,12 @@ int checkOpenFiles( int mentionAbove ) {
 
                 char buf[256];
                 memset( buf, 0, 256 );
-
+								//-readlink()会将参数path的符号链接内容存储到参数buf所指的内存空间，返回的内容不是以\000作字符串结尾，但会将字符串的字符数返回，这使得添加\000变得简单。
                 ssize_t s = readlink( path, buf, 256 );
                 if ( s != -1 ) {
                     numOpen++;
 
-                    if ( i >= mentionAbove ) {
+                    if ( i >= mentionAbove ) {//-如果超过允许打开的文件数
 
                         printf( "checkOpenFiles - UNEXPECTED FILE %s: ", buf );
 
@@ -172,7 +172,7 @@ int checkOpenFiles( int mentionAbove ) {
                         fl.l_whence = 0;
                         fl.l_start = 0;
                         fl.l_len = 0;
-                        fcntl( i, F_GETLK, &fl );
+                        fcntl( i, F_GETLK, &fl );	//-F_GETLK 取得文件锁定的状态。
                         if ( fl.l_type != F_UNLCK ) {
                             if ( fl.l_type == F_WRLCK ) {
                                 printf( "write-locked" );

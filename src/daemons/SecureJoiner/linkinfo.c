@@ -98,7 +98,7 @@ linkinfo_t * linkinfoHandle( void ) {
 
     newLogAdd( NEWLOG_FROM_SECURE_JOINER, "Handle link info" );
 
-    char * mac     = parsingGetStringAttr( "mac" );
+    char * mac     = parsingGetStringAttr( "mac" );	//-这是对JSON语法的解读,通过名称获取对应数值
     char * linkkey = parsingGetStringAttr( "linkkey" );
 
     if ( mac != NULL && linkkey != NULL ) {
