@@ -94,7 +94,7 @@ int main( int argc, char * argv[] ) {
 
         while( running ) {
 
-            char * message = jsonGwProperties( myHostname(), JSON_API_VERSION );
+            char * message = jsonGwProperties( myHostname(), JSON_API_VERSION );	//-组织了一个JSON语法语句,表示的网关属性
                 
             // Wait for incoming UDP discover packets
             memset( &TargetAddr, 0, sizeof( TargetAddr ) );
@@ -117,7 +117,7 @@ int main( int argc, char * argv[] ) {
                 // Send response packet
                 NumBytes = sendto( sock, message, strlen(message),
                                0, (struct sockaddr*)&TargetAddr,
-                               sizeof(TargetAddr));
+                               sizeof(TargetAddr));	//-把网关信息发送出去,走的UDP,使用的JSON协议
             }
 
             requestCount++;
