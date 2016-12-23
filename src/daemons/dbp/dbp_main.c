@@ -131,7 +131,7 @@ static void dbp_onObjectComplete(char * name) {
     if(strcmp(name, "sensor") == 0){
         
         /* check location info first */
-        mac = parsingGetStringAttr("mac");
+        mac = parsingGetStringAttr("mac");	//-这里其实就是通过mac字符串找到了具体的mac数值,这个是一种存储方法
         
         if( (isEmptyString(parsingGetStringAttr("nm")) == 0) ||
 			(parsingGetIntAttr("xloc") != INT_MIN) ||
@@ -150,11 +150,11 @@ static void dbp_onObjectComplete(char * name) {
                 printf("%s: ok. status = %d\n", __func__, status);
                 
                 /* dummy calls */
-                dbp_update_parent_address(mac);
+                dbp_update_parent_address(mac);	//-通过解析获得了命令,这里根据命令更新了数据库
                 dbp_update_location(mac); 
-                dbp_update_lqi(mac);
+                dbp_update_lqi(mac);	//-貌似这里仅仅是显示了这样的框架,很多实际操作还没有完善
                 
-                dbp_update_battery(mac);
+                dbp_update_battery(mac);	//-目前这个里面有数据的解析了
                 if(dbp_update_battery_lvl(mac) == 0) return;
                 if(dbp_update_illuminance(mac) == 0) return;
                 if(dbp_update_humidity(mac) == 0) return;
@@ -344,13 +344,13 @@ static void *zigbee_msg_receiver(void *arg)	//-zigbee消息接收处理
     /* receive message */
     printf("Message Receiver's Thread is running\n");
     
-    if( (dbpQueue = queueOpen(QUEUE_KEY_DBP, 0)) != -1 ){
+    if( (dbpQueue = queueOpen(QUEUE_KEY_DBP, 0)) != -1 ){//-打开消息队列的原则是有就返回队列标识符,无则创建一个
     
         jsonSetOnError(dbp_onError);
         jsonSetOnObjectStart(dbp_onObjectStart);
-        jsonSetOnObjectComplete(dbp_onObjectComplete);
+        jsonSetOnObjectComplete(dbp_onObjectComplete);	//-花括号保存对象
         jsonSetOnArrayStart(dbp_onArrayStart);
-        jsonSetOnArrayComplete(dbp_onArrayComplete);
+        jsonSetOnArrayComplete(dbp_onArrayComplete);	//-方括号保存数组
         jsonSetOnString(dbp_onString);
         jsonSetOnInteger(dbp_onInteger);
         jsonReset();	//-对解析器结构体赋初值

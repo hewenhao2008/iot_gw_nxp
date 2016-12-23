@@ -142,7 +142,7 @@ int parsingAddStringAttr( char * name, int maxlen ) {
 /**
  * \brief Reset the parser (and the integer and string arrays)
  */
-void parsingReset( void ) {
+void parsingReset( void ) {//-复位解析器
     int i;
     for ( i=0; i<numIntAttrs; i++ ) {
          parsingIntAttrs[i].value = INT_MIN;
@@ -221,7 +221,7 @@ int parsingGetIntAttr( char * name ) {
  * \param name Name of the string
  * \return The value for the string or NULL when the string was not found/parsed
  */
-char * parsingGetStringAttr( char * name ) {
+char * parsingGetStringAttr( char * name ) {//-获得名称对应的值对数值
     int i;
     for ( i=0; i<numStringAttrs; i++ ) {
         if ( strcmp( parsingStringAttrs[i].name, name ) == 0 ) {

@@ -14,6 +14,47 @@
  * \brief JSON stream parser. Parses a JSON steam one character at a time and uses callbacks to
  * the calling processes
  */
+ 
+/*
+JSON(JavaScript Object Notation) 是一种轻量级的数据交换格式。
+理想的数据交换语言。 易于人阅读和编写，同时也易于机器解析和生成(一般用于提升网络传输速率)。
+JSON 语法规则
+JSON 语法是 JavaScript 对象表示语法的子集。
+数据在键值对中
+数据由逗号分隔
+花括号保存对象
+方括号保存数组
+JSON 名称/值对
+JSON 数据的书写格式是：名称/值对。
+名称/值对组合中的名称写在前面（在双引号中），值对写在后面(同样在双引号中)，中间用冒号隔开：
+1
+"firstName":"John"
+这很容易理解，等价于这条 JavaScript 语句：
+1
+firstName="John"
+JSON 值
+JSON 值可以是：
+数字（整数或浮点数）
+字符串（在双引号中）
+逻辑值（true 或 false）
+数组（在方括号中）
+对象（在花括号中）
+null
+
+名称 / 值对
+按照最简单的形式，可以用下面这样的 JSON 表示"名称 / 值对"：
+1
+{"firstName":"Brett"}
+这个示例非常基本，而且实际上比等效的纯文本"名称 / 值对"占用更多的空间：
+1
+firstName=Brett
+但是，当将多个"名称 / 值对"串在一起时，JSON 就会体现出它的价值了。首先，可以创建包含多个"名称 / 值对"的 记录，比如：
+1
+{"firstName":"Brett","lastName":"McLaughlin","email":"aaaa"}
+从语法方面来看，这与"名称 / 值对"相比并没有很大的优势，但是在这种情况下 JSON 更容易使用，而且可读性更好。例如，它明
+确地表示以上三个值都是同一记录的一部分；花括号使这些值有了某种联系。
+
+*/ 
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -132,7 +173,7 @@ static void jsonError(int err) {
 // Helpers
 // -------------------------------------------------------------
 
-static int isWhiteSpace(char c) {
+static int isWhiteSpace(char c) {//-是空的就返回1
     return ( (c == ' ') || (c == '\r') || (c == '\n') || (c == '\t') );
 }
 
@@ -176,7 +217,7 @@ static void appendValue(char c) {
 
 static void setState(int st) {
     // printf("Set state %d\n", st);
-    parser->state = st;
+    parser->state = st;	//-主动设置状态
 
     switch (parser->state) {
         case STATE_INNAME:
@@ -234,14 +275,14 @@ static void upState(void) {
 // Eat character
 // -------------------------------------------------------------
 
-static void jsonEatNoLog(char c) {
+static void jsonEatNoLog(char c) {//-这个里面完整的解析了数据,然后根据不同的定义调用不同的处理函数,这样就完成了命令的接收和应答
     int again = 0;
 
     // int prevstate = parser->state;
 
     switch (parser->state) {
         case STATE_NONE:
-            if (c == '{') {
+            if (c == '{') {//-遇到这个字符就进行下面的处理,一套流程就实现了JSON解析
                 if (parser->onObjectStart != NULL) parser->onObjectStart(parser->name[parser->stack]);
                 toState(STATE_INOBJECT);
                 toState(STATE_TONAME);
@@ -381,7 +422,7 @@ static void jsonEatNoLog(char c) {
 //    for (i = 0; i < parser->stateIndex; i++) printf("%d ", parser->states[i]);
 //    printf(", state=%d, A=%d - %d\n", parser->state, parser->allowComma, parser->again);
 
-    if (again) jsonEatNoLog(c);
+    if (again) jsonEatNoLog(c);	//-从一个字符开始解析,如果需要的话可以自己再读取下一个继续
 }
 
 // -------------------------------------------------------------
@@ -407,7 +448,7 @@ void jsonReset(void) {
  * \brief Parse a JSON stream, one character at a time
  * \param c Character to parse
  */
-void jsonEat(char c) {
+void jsonEat(char c) {//-开始解析的进入点
 
     parser->numchars++;
 
@@ -419,7 +460,7 @@ void jsonEat(char c) {
 
     jsonEatNoLog(c);
 }
-
+//-下面都是给一个解析结构赋值的,这样就动态的创建了一个解析体
 void jsonSetOnError(OnError oe) {
     parser->onError = oe;
 }
@@ -452,7 +493,7 @@ void jsonSetOnInteger(OnInteger oi) {
 // Parser switching (for nested parsing)
 // -------------------------------------------------------------
 
-int jsonGetSelected( void ) {
+int jsonGetSelected( void ) {	//-获得当前解析结构在数组中的位置
     int i;
     for ( i=0; i<MAXPARSERS; i++ ) {
         if ( parser == &parserData[i] ) return( i );
@@ -474,7 +515,7 @@ void jsonSelectPrev( void ) {
     int p = jsonGetSelected();
     if ( p > 0 ) {
         // printf( "JSON select %d\n", p-1 );
-        parser = &parserData[p-1];
+        parser = &parserData[p-1];	//-记录了解析结构的数据
     } else {
         printf( "Error: parser underflow\n" );
     }
