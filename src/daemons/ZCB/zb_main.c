@@ -16,8 +16,11 @@
 1.把串口通讯分支拎东西
 主线程 + 串口读线程 + 回调处理线程
 主线程:接收来自上层的控制命令
+
 串口读线程:仅仅复杂接收报文,并分发处理
 回调处理线程:周期性的完成逻辑处理关系
+上面两个线程应该都是链接到串口的一个专门负责接收数据,一个专门等待数据进行处理,两者之间
+通过队列进行信息交换,由于在同一个程序里,所以没有使用系统队列
 
 
 */
@@ -1163,7 +1166,7 @@ int main(int argc, char *argv[])
     newLogAdd( NEWLOG_FROM_ZCB_IN, "ZCB-in started" );
 
     int zcbQueue;
-    if ( ( zcbQueue = queueOpen( QUEUE_KEY_ZCB_IN, 0 ) ) != -1 ) {
+    if ( ( zcbQueue = queueOpen( QUEUE_KEY_ZCB_IN, 0 ) ) != -1 ) {//-队列应该是其他线程发送过来的消息
 
         jsonSetOnError( zcb_onError );
         jsonSetOnObjectStart( zcb_onObjectStart );
@@ -1188,7 +1191,7 @@ int main(int argc, char *argv[])
         
         int start = 0;
 
-        while ( bRunning ) {	//?接收来自上层的控制命令
+        while ( bRunning ) {	//-接收来自上层的控制命令
             numBytes = queueReadWithMsecTimeout( zcbQueue,
                               inputBuffer, INPUTBUFFERLEN, 4000 );
             if ( numBytes > 0 ) {

@@ -150,28 +150,28 @@ static void thread_signal_handler(int sig)
 
 
 #ifndef WIN32
-static void *pvThreadFunction(void *psThreadInfoVoid)
+static void *pvThreadFunction(void *psThreadInfoVoid)	//-系统线程运行的函数入口在这
 #else
 static DWORD WINAPI dwThreadFunction(void *psThreadInfoVoid)
 #endif /* WIN32 */
 {
-    tsUtilsThread *psThreadInfo = (tsUtilsThread *)psThreadInfoVoid;
-    tsThreadPrivate *psThreadPrivate = (tsThreadPrivate *)psThreadInfo->pvPriv;
+    tsUtilsThread *psThreadInfo = (tsUtilsThread *)psThreadInfoVoid;	//-这个参数里面记录了所有我们自己希望维护的线程
+    tsThreadPrivate *psThreadPrivate = (tsThreadPrivate *)psThreadInfo->pvPriv;	//-记录了私有线程信息
     
     DBG_vPrintf(DBG_THREADS, "Thread %p running for function %p\n", psThreadInfo, psThreadPrivate->prThreadFunction);
 
-    if (psThreadInfo->eThreadDetachState == E_THREAD_DETACHED)
+    if (psThreadInfo->eThreadDetachState == E_THREAD_DETACHED)	//-根据设定的状态来搭建自己的线程
     {
         DBG_vPrintf(DBG_THREADS, "Detach Thread %p\n", psThreadInfo);
 #ifndef WIN32
-        if (pthread_detach(psThreadPrivate->thread))
+        if (pthread_detach(psThreadPrivate->thread))	//-创建一个线程默认的状态是joinable。
         {
             perror("pthread_detach()");
         }
 #endif /* WIN32 */
     }
     
-    psThreadPrivate->prThreadFunction(psThreadInfo);
+    psThreadPrivate->prThreadFunction(psThreadInfo);	//-这里实际调用了我们预想的线程处理函数
 #ifndef WIN32
     pthread_exit(NULL);
     return NULL;
@@ -180,26 +180,26 @@ static DWORD WINAPI dwThreadFunction(void *psThreadInfoVoid)
 #endif /* WIN32 */
 }
 
-
+//-这里复杂就复杂在线程还需要自己维护
 teUtilsStatus eUtils_ThreadStart(tprThreadFunction prThreadFunction, tsUtilsThread *psThreadInfo, teThreadDetachState eDetachState)	//-此进程中唯一创建线程的地方
 {
     tsThreadPrivate *psThreadPrivate;
     
-    psThreadInfo->eState = E_THREAD_STOPPED;
+    psThreadInfo->eState = E_THREAD_STOPPED;	//-记录线程的状态
     
     DBG_vPrintf(DBG_THREADS, "Start Thread %p to run function %p\n", psThreadInfo, prThreadFunction);
     
-    psThreadPrivate = malloc(sizeof(tsThreadPrivate));
+    psThreadPrivate = malloc(sizeof(tsThreadPrivate));	//-线程信息
     if (!psThreadPrivate)
     {
         return E_UTILS_ERROR_NO_MEM;
     }
     
-    psThreadInfo->pvPriv = psThreadPrivate;
+    psThreadInfo->pvPriv = psThreadPrivate;	//-指向线程信息体
     
-    psThreadInfo->eThreadDetachState = eDetachState;
+    psThreadInfo->eThreadDetachState = eDetachState;	//-设置了线程状态,其实就是设置了标志位,后续操作需要以这个为依据,这样就实现了控制
     
-    psThreadPrivate->prThreadFunction = prThreadFunction;
+    psThreadPrivate->prThreadFunction = prThreadFunction;	//-记录了线程处理函数地址
     
 #ifndef WIN32
     {
@@ -228,9 +228,12 @@ teUtilsStatus eUtils_ThreadStart(tprThreadFunction prThreadFunction, tsUtilsThre
             }
         }
     }
-    
+    //-第一个参数为指向线程标识符的指针。
+		//-第二个参数用来设置线程属性。
+		//-第三个参数是线程运行函数的起始地址。
+		//-最后一个参数是运行函数的参数。
     if (pthread_create(&psThreadPrivate->thread, NULL,
-        pvThreadFunction, psThreadInfo))
+        pvThreadFunction, psThreadInfo))	//-所有的线程入口函数在这里,而我们前面组织的仅仅是模拟系统创建线程,自己维护了一个线程,而不是系统
     {
         perror("Could not start thread");
         return E_UTILS_ERROR_FAILED;
@@ -577,8 +580,8 @@ teUtilsStatus eUtils_LockUnlock(tsUtilsLock *psLock)
 typedef struct
 {
     void              **apvBuffer;
-    uint32_t            u32Capacity;
-    uint32_t            u32Size;
+    uint32_t            u32Capacity;	//-定义了队列的容量
+    uint32_t            u32Size;	//-记录了队列的实际尺寸
     uint32_t            u32In;
     uint32_t            u32Out;
 
@@ -596,7 +599,7 @@ typedef struct
 } tsQueuePrivate;
 
 
-teUtilsStatus eUtils_QueueCreate(tsUtilsQueue *psQueue, uint32_t u32MaxCapacity, int iFlags)
+teUtilsStatus eUtils_QueueCreate(tsUtilsQueue *psQueue, uint32_t u32MaxCapacity, int iFlags)	//-创建属于自己的队列
 {
     tsQueuePrivate *psQueuePrivate;
     
@@ -606,9 +609,9 @@ teUtilsStatus eUtils_QueueCreate(tsUtilsQueue *psQueue, uint32_t u32MaxCapacity,
         return E_UTILS_ERROR_NO_MEM;
     }
     
-    psQueue->pvPriv = psQueuePrivate;
+    psQueue->pvPriv = psQueuePrivate;	//-记录了串口所对应的队列地址
     
-    psQueuePrivate->apvBuffer = malloc(sizeof(void *) * u32MaxCapacity);
+    psQueuePrivate->apvBuffer = malloc(sizeof(void *) * u32MaxCapacity);	//-对队列填写参数
     
     if (!psQueuePrivate->apvBuffer)
     {
@@ -660,7 +663,7 @@ teUtilsStatus eUtils_QueueDestroy(tsUtilsQueue *psQueue)
 }
 
 
-teUtilsStatus eUtils_QueueQueue(tsUtilsQueue *psQueue, void *pvData)
+teUtilsStatus eUtils_QueueQueue(tsUtilsQueue *psQueue, void *pvData)	//-一个消息队列节点记录了串口读到的消息,这里把这个节点加入到队列中,一般其他线程处理
 {
     tsQueuePrivate *psQueuePrivate = (tsQueuePrivate*)psQueue->pvPriv;
     
@@ -692,19 +695,19 @@ teUtilsStatus eUtils_QueueQueue(tsUtilsQueue *psQueue, void *pvData)
         // Block until space is available
         while (psQueuePrivate->u32Size == psQueuePrivate->u32Capacity)
 #ifndef WIN32
-            pthread_cond_wait       (&psQueuePrivate->cond_space_available, &psQueuePrivate->mMutex);
+            pthread_cond_wait       (&psQueuePrivate->cond_space_available, &psQueuePrivate->mMutex);	//-条件等待,利用这个进行线程间的同步操作
 #else
             SleepConditionVariableCS(&psQueuePrivate->hSpaceAvailable, &psQueuePrivate->hMutex, INFINITE);
 #endif /* WIN32 */
     }
     
     psQueuePrivate->apvBuffer[psQueuePrivate->u32In] = pvData;
-    psQueuePrivate->u32Size++;
+    psQueuePrivate->u32Size++;	//-队列中增加了一个元素
     psQueuePrivate->u32In = (psQueuePrivate->u32In+1) % psQueuePrivate->u32Capacity;
     
 #ifndef WIN32
     pthread_mutex_unlock    (&psQueuePrivate->mMutex);
-    pthread_cond_broadcast  (&psQueuePrivate->cond_data_available);
+    pthread_cond_broadcast  (&psQueuePrivate->cond_data_available);	//-向其他线程广播条件
 #else
     LeaveCriticalSection    (&psQueuePrivate->hMutex);
     WakeConditionVariable   (&psQueuePrivate->hDataAvailable);
@@ -769,7 +772,7 @@ teUtilsStatus eUtils_QueueDequeue(tsUtilsQueue *psQueue, void **ppvData)
 }
 
 
-teUtilsStatus eUtils_QueueDequeueTimed(tsUtilsQueue *psQueue, uint32_t u32WaitMs, void **ppvData)
+teUtilsStatus eUtils_QueueDequeueTimed(tsUtilsQueue *psQueue, uint32_t u32WaitMs, void **ppvData)	//-从队列中抽出数据
 {
     tsQueuePrivate *psQueuePrivate = (tsQueuePrivate*)psQueue->pvPriv;
 #ifndef WIN32
@@ -778,7 +781,7 @@ teUtilsStatus eUtils_QueueDequeueTimed(tsUtilsQueue *psQueue, uint32_t u32WaitMs
     EnterCriticalSection    (&psQueuePrivate->hMutex);
 #endif /* WIN32 */
     
-    while (psQueuePrivate->u32Size == 0)
+    while (psQueuePrivate->u32Size == 0)	//-等于0说明没有消息所以延时等待
     {
 #ifndef WIN32
         struct timeval sNow;
@@ -795,7 +798,7 @@ teUtilsStatus eUtils_QueueDequeueTimed(tsUtilsQueue *psQueue, uint32_t u32WaitMs
         }
         //DBG_vPrintf(DBG_QUEUE, "Dequeue timed: now    %lu s, %lu ns\n", sNow.tv_sec, sNow.tv_usec * 1000);
         //DBG_vPrintf(DBG_QUEUE, "Dequeue timed: until  %lu s, %lu ns\n", sTimeout.tv_sec, sTimeout.tv_nsec);
-
+				//-pthread_cond_timedwait()函数阻塞住调用该函数的线程，等待由cond指定的条件被触发（pthread_cond_broadcast() or pthread_cond_signal()）。
         switch (pthread_cond_timedwait(&psQueuePrivate->cond_data_available, &psQueuePrivate->mMutex, &sTimeout))
 #else
         // Set n = 0 for success or the error code. 
@@ -828,9 +831,9 @@ teUtilsStatus eUtils_QueueDequeueTimed(tsUtilsQueue *psQueue, uint32_t u32WaitMs
                 return E_UTILS_ERROR_FAILED;
         }
     }
-    
+    //-运行到这里说明有消息了
     *ppvData = psQueuePrivate->apvBuffer[psQueuePrivate->u32Out];
-    --psQueuePrivate->u32Size;
+    --psQueuePrivate->u32Size;	//-一个消息出队列了
     DBG_vPrintf(DBG_QUEUE, "Queue %p (size=%d)\n", psQueue, psQueuePrivate->u32Size);
     
     psQueuePrivate->u32Out = (psQueuePrivate->u32Out + 1) % psQueuePrivate->u32Capacity;
