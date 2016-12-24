@@ -4,9 +4,9 @@
 # Author:    nlv10677
 # Copyright: NXP B.V. 2014. All rights reserved
 # ------------------------------------------------------------------
-
+#-这个是最后一个makefile了
 TARGET = iot_sj
-
+#-包含头文件的地方
 INCLUDES = -I../../IotCommon
 OBJECTS = sj_main.o \
 	linkinfo.o \

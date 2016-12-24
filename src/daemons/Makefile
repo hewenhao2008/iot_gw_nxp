@@ -5,7 +5,7 @@
 # Author:    nlv10677
 # Copyright: NXP B.V. 2014. All rights reserved
 # ------------------------------------------------------------------
-
+#-makefile文件是一个树一样的结构体,可以一直生长下去
 all:
 	cd ZCB;                     make
 	cd SecureJoiner;            make
