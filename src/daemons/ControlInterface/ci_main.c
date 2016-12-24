@@ -348,7 +348,7 @@ static void handleClient( int socketHandle ) {//-¸ºÔğ¶Ô¿Í»§¶Ë·¢À´µÄÏûÏ¢½øĞĞ½âÎö´
  * \retval NULL Null pointer
  */
 
-static void * dbSaveThread( void * arg ) {
+static void * dbSaveThread( void * arg ) {//-´ËÏß³ÌÊµÏÖÖÜÆÚ±¸·İÊı¾İ¿âµÄ¹¦ÄÜ
     int running = *((int *)arg);
     sleep( 5 );
     while ( running ) {

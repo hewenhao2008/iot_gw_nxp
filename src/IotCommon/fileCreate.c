@@ -41,9 +41,9 @@
  */
 int fileCreateMode( char * name, int mode ) {
     DEBUG_PRINTF( "Create file %s with mode %o\n", name, mode );
-    int fd = open( name, O_RDWR | O_CREAT );
+    int fd = open( name, O_RDWR | O_CREAT );	//-打开和创建文件。
     if ( fd >= 0 ) {
-        fchmod( fd, mode );
+        fchmod( fd, mode );	//-依参数mode权限来更改参数fildes所指文件的权限。
         close( fd );
 #ifdef TARGET_RASPBIAN
         uid_t uid=getuid(), euid=geteuid();

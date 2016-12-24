@@ -213,9 +213,9 @@ static int newDbSaveTable( char * tablename, char * data, int len ) {//-°ÑÄÚÈİ±£
         sprintf( backup, "%siot_%s.bck", DB_FILEPATH, tablename );
         
         // Check if we still have a database file
-        if ( stat(filename, &sb) == -1) {//-Í¨¹ıÎÄ¼şÃûfilename»ñÈ¡ÎÄ¼şĞÅÏ¢£¬²¢±£´æÔÚbufËùÖ¸µÄ½á¹¹ÌåstatÖĞ
+        if ( stat(filename, &sb) == -1) {//-Í¨¹ıÎÄ¼şÃûfilename»ñÈ¡ÎÄ¼şĞÅÏ¢£¬²¢±£´æÔÚbufËùÖ¸µÄ½á¹¹ÌåstatÖĞ,Ö´ĞĞ³É¹¦Ôò·µ»Ø0£¬Ê§°Ü·µ»Ø-1
             DEBUG_PRINTF( "No dB file found. Stat %s, errno = %d\n", filename, errno );
-        } else {
+        } else {//-³É¹¦ÁË,ËµÃ÷ÓĞ,ËùÒÔ¿ÉÒÔÉ¾³ı±¸·İÁË,ÕıºÃ¸üĞÂºó,Ô­À´µÄ¾ÍÊÇ±¸·İÁË
             // Yes, so we can throw away the backup
             // First check if we have one
             if ( stat(backup, &sb) == -1) {
@@ -232,7 +232,7 @@ static int newDbSaveTable( char * tablename, char * data, int len ) {//-°ÑÄÚÈİ±£
             }
             //-Èç¹û´æÔÚ±¸·İÎÄ¼ş¾ÍĞèÒªÉ¾³ı,ÒòÎªÏÖÔÚµÄÎÄ¼ş½«ÊÇ±¸·İÎÄ¼şÁË    
             // Rename the database file to the backup
-            if ( rename( filename, backup ) != 0 ) {
+            if ( rename( filename, backup ) != 0 ) {//-¸øÒ»¸öÎÄ¼şÖØÃüÃû£¬ÓÃ¸Ãº¯Êı¿ÉÒÔÊµÏÖÎÄ¼şÒÆ¶¯¹¦ÄÜ£¬°ÑÒ»¸öÎÄ¼şµÄÍêÕûÂ·¾¶µÄÅÌ·û¸ÄÒ»ÏÂ¾ÍÊµÏÖÁËÕâ¸öÎÄ¼şµÄÒÆ¶¯¡£
                 printf( "Error backing-up database file %s (%d - %s)\n",
                         filename, errno, strerror( errno ) );
                 newLogAdd( NEWLOG_FROM_DATABASE, "Error backing-up database file" );
@@ -251,8 +251,9 @@ static int newDbSaveTable( char * tablename, char * data, int len ) {//-°ÑÄÚÈİ±£
         } else {
             printf( "dB backup still there\n" );
         }
+        //-ÉÏÃæÁ½¸öÅĞ¶ÏÁËÎÄ¼şÊÇ·ñ·¢ÉúÁËÒÆ¶¯
         
-        if ( fileCreateRW( filename ) ) {
+        if ( fileCreateRW( filename ) ) {//-ÔÙ´Î´´½¨ÁËÊı¾İ¿âÎÄ¼ş
             DEBUG_PRINTF( "Re-created database file %s\n", filename );
 
             // Now write the data
@@ -377,7 +378,7 @@ int newDbSave( void ) {//-Êı¾İ¿âÄÚÈİµÄ±£´æÊÇÍ¨¹ıÖ¸¶¨ÎÄ¼şÀ´´æ´¢ÊµÏÖµÄ,Ö»ÊÇÄÚ²¿²Ù×
  * \param len Size in bytes of this table-part
  * \returns 1 on success, 0 on error
  */
-static int newDbRestoreTable( char * tablename, char * data, int len ) {
+static int newDbRestoreTable( char * tablename, char * data, int len ) {//-»Ö¸´Ä³¸ö±í¸ñ
     DEBUG_PRINTF( "DB restore table %s (%d)\n", tablename, len );
 
     char filename[40];    
