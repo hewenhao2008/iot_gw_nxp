@@ -315,7 +315,7 @@ static void handleClient( int socketHandle ) {//-¸ºÔğ¶Ô¿Í»§¶Ë·¢À´µÄÏûÏ¢½øĞĞ½âÎö´
             ok = 0;
         } else {
             int i;
-            for ( i=0; i<len; i++ ) {
+            for ( i=0; i<len; i++ ) {//-°Ñ¶ÁÈ¡µÄÍøÂçÌ×½Ó×Ö×ª´æµ½´ı´¦ÀíµÄµØ·½
                 // Transfer all non-printable bytes into '.'
                 socketInputBuffer[i] = convertPrintable( socketInputBuffer[i] );
             }

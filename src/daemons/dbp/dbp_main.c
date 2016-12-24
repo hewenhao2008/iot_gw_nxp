@@ -128,7 +128,7 @@ static void dbp_onObjectComplete(char * name) {
     status = connection.connected;
     pthread_mutex_unlock(&dbp_mutex);
     
-    if(strcmp(name, "sensor") == 0){
+    if(strcmp(name, "sensor") == 0){//-判断是否是传感器的消息,这里可能就是温湿度传感器的
         
         /* check location info first */
         mac = parsingGetStringAttr("mac");	//-这里其实就是通过mac字符串找到了具体的mac数值,这个是一种存储方法
@@ -145,7 +145,7 @@ static void dbp_onObjectComplete(char * name) {
             
         }else{
             
-            if(status == true){
+            if(status == true){//-true说明处于连接状态
                 
                 printf("%s: ok. status = %d\n", __func__, status);
                 
@@ -158,7 +158,7 @@ static void dbp_onObjectComplete(char * name) {
                 if(dbp_update_battery_lvl(mac) == 0) return;
                 if(dbp_update_illuminance(mac) == 0) return;
                 if(dbp_update_humidity(mac) == 0) return;
-                if(dbp_update_temperature(mac) == 0) return;
+                if(dbp_update_temperature(mac) == 0) return;	//-里面进行了可能的底层数据发送
                 
             }else{
                 printf("%s: error. status = %d\n", __func__, status);
@@ -627,8 +627,8 @@ static int dbp_update_temperature(char *mac)
     
     value = parsingGetIntAttr("tmp");	//-通过比较名字获取内部对应数据,这样做的目的是外部形象,内部方便使用
 	if(value != INT_MIN){
-		if(dbp_report_temp(value, mac, output) == 0){
-			dbp_send_data_to_clients(output);	//-这里把温度发送给了客户端
+		if(dbp_report_temp(value, mac, output) == 0){//-这里里面对数据进行了组织,为发送做准备
+			dbp_send_data_to_clients(output);	//-这里把温度发送给了客户端,到达了最底层
 			printf("temp sent to client");
 		}
 	}

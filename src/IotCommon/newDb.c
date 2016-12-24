@@ -861,7 +861,7 @@ int newDbGetNewDevice( char * mac, newdb_dev_t * pdev ) {
  * \param pdev Pointer to an entry structure that was obtained by a get-function
  * \returns 1 on success, 0 on error
  */
-int newDbSetDevice( newdb_dev_t * pdev ) {
+int newDbSetDevice( newdb_dev_t * pdev ) {//-更新了下数据库内的刷新时间等
     if ( newDbSharedMemory && pdev && ( pdev->id >= 0 && pdev->id < NEWDB_MAX_DEVICES ) ) {
         int now = (int)time( NULL );
         pdev->lastupdate = now;

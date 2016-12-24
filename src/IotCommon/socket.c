@@ -64,15 +64,15 @@ int socketOpen( char * host, char * port, int server ) {
     sHints.ai_flags    = AI_PASSIVE;
 
     int handle;
-
+	//-getaddrinfo函数能够处理名字到地址以及服务到端口这两种转换，返回的是一个addrinfo的结构（列表）指针而不是一个地址清单。
     if ((iResult = getaddrinfo(host, port, &sHints, &addrInfo)) != 0) {
         printf( "socketOpen: %s failed(%s)\n", "getaddrinfo", gai_strerror(iResult));
         iotError = IOT_ERROR_SOCKET_OPEN;
         return -1;
     }
-
+	//-上面函数的作用是进行格式转化,把一个我们不能直接使用的格式转化为下面库函数可以直接使用的格式而以
     for(p = addrInfo; p != NULL; p = p->ai_next) {
-        if (( handle = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {
+        if (( handle = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1) {//-使用参数创建一个套接字
             printf( "socketOpen: %s failed(%s)\n", "socket", strerror(errno));
             continue;
         }
@@ -80,7 +80,7 @@ int socketOpen( char * host, char * port, int server ) {
         // A server does a bind, whereas a client does a connect...
 
         if ( server ) {
-            if (setsockopt( handle, SOL_SOCKET, SO_REUSEADDR, &iYes, sizeof(int)) == -1) {
+            if (setsockopt( handle, SOL_SOCKET, SO_REUSEADDR, &iYes, sizeof(int)) == -1) {//-设置套接口的选项。
                 printf( "socketOpen: %s failed(%s)\n", "setsockopt", strerror(errno));
             }
 
@@ -111,7 +111,7 @@ int socketOpen( char * host, char * port, int server ) {
     if ( server ) {
         // A server will start to listen for clients...
 
-        if (listen( handle, BACKLOG) == -1) {
+        if (listen( handle, BACKLOG) == -1) {//-创建一个套接口并监听申请的连接.
             printf( "socketOpen: %s failed(%s)\n", "listen", strerror(errno));
             iotError = IOT_ERROR_SOCKET_OPEN;
             return -3;
@@ -146,7 +146,7 @@ int socketAccept( int handle ) {
     int                     iClientSocket;
 
     iClientSocket = accept(handle,
-                           (struct sockaddr *)&sClientAddress, &iSinSize);
+                           (struct sockaddr *)&sClientAddress, &iSinSize);//-在一个套接口接受一个连接。
     if (iClientSocket == -1) {
         printf( "socketAccept: failed(%s)\n", strerror(errno));
     } else {

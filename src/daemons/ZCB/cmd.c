@@ -104,7 +104,7 @@ static teZcbStatus eSetPermitJoining(uint8_t u8Interval) {
     dump( (char *)&sPermitJoiningMessage, sizeof(struct _PermitJoiningMessage) );
 
     if (eSL_SendMessage(E_SL_MSG_PERMIT_JOINING_REQUEST, sizeof(struct _PermitJoiningMessage),
-           &sPermitJoiningMessage, NULL) != E_SL_OK) {
+           &sPermitJoiningMessage, NULL) != E_SL_OK) {//-发出了允许dongle加网命令
         return E_ZCB_COMMS_FAILED;
     }
     eGetPermitJoining();
@@ -329,7 +329,7 @@ static void cmdDump ( void ) {
  * \retval E_SL_OK When OK, else an error number
  */
 
-int cmdHandle( void ) {
+int cmdHandle( void ) {//-对命令进行解析,然后向dongle发送命令,其实就是一个协议的转化
     int ret = E_SL_OK;
 #ifdef CMD_DEBUG
     cmdDump();
@@ -417,7 +417,7 @@ int cmdHandle( void ) {
         int duration = parsingGetIntAttr( "duration" );
         if ( duration >= 0 ) {
             printf( "SetPermit command %d\n", duration );
-            eSetPermitJoining( duration );
+            eSetPermitJoining( duration );	//-设置允许加网命令
         }
     }
 

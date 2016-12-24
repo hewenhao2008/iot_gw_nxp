@@ -294,10 +294,10 @@ static void zcbHandleSensor( char * mac, int tmp, int hum, int als, int bat, int
     sprintf( logbuffer, "Sensor %s: tmp %d", mac, tmp );
 
     newdb_dev_t device;
-    if ( newDbGetDevice( mac, &device ) ) {
+    if ( newDbGetDevice( mac, &device ) ) {//-通过mac地址在数据库中寻找到对应的设备
         if ( tmp  >= 0 ) {
             sprintf( logbuffer, "Sensor %s: tmp %d", mac, tmp );
-            device.tmp = tmp;
+            device.tmp = tmp;	//-这里其实就实实在在向数据库中填写了数据,具体定位在共享内存中
         }
         if ( hum  >= 0 ) {
             sprintf( logbuffer, "Sensor %s: hum %d", mac, hum );
@@ -316,13 +316,13 @@ static void zcbHandleSensor( char * mac, int tmp, int hum, int als, int bat, int
             device.batl = batl;
         }
         device.flags |= FLAG_DEV_JOINED;
-        newDbSetDevice( &device );
+        newDbSetDevice( &device );	//-设定了数据库一些值,这里有刷新时间等
         
         // Tee to DBP
         char * message = jsonSensor( -1, mac, NULL, -1, -1,
                                     tmp, hum, -1, -1, bat, batl, als,
-                                    INT_MIN, INT_MIN, INT_MIN, -1 );
-        queueWriteOneMessage( QUEUE_KEY_DBP, message );
+                                    INT_MIN, INT_MIN, INT_MIN, -1 );	//-组织JSON语句
+        queueWriteOneMessage( QUEUE_KEY_DBP, message );	//-通过消息队列发送出去
     }
  
      newLogAdd( NEWLOG_FROM_ZCB_OUT, logbuffer );
@@ -341,7 +341,7 @@ static void zcb_onObjectStart(char * name) {
     parsingReset();
 }
 
-static void zcb_onObjectComplete(char * name) {
+static void zcb_onObjectComplete(char * name) {//-解析完JSON之后获得对应的命令,然后去对应执行
     DEBUG_PRINTF("onObjectComplete( %s )\n", name);
     if ( strcmp( name, "cmd" ) == 0 ) {
         cmdHandle();
@@ -689,7 +689,7 @@ static void sendActuatorLevel( uint64_t u64IEEEAddress, int data ) {
 // Send thermostat/sensing messages to IoT
 // ------------------------------------------------------------------
 
-static void sendTemperature( uint64_t u64IEEEAddress, int data ) {
+static void sendTemperature( uint64_t u64IEEEAddress, int data ) {//-把接收到的终端温湿度数据发送出去
     char  mac[16+2];
     u642nibblestr( u64IEEEAddress, mac );
     DEBUG_PRINTF( "Temperature 0x%x\n", data );
@@ -955,7 +955,7 @@ void handleAttribute( uint16_t u16ShortAddress,
                 sendTemperature( u64IEEEAddress, (int)u64Data );
                 break;
 
-            default:
+            default:	//-源代码提供的仅仅是一个最基本的例子,还有很多没有处理,但是整体框架绝对够了
                 DEBUG_PRINTF( "Received attribute 0x%04x in MS-Temperature cluster\n", 
                         u16AttributeID );
                 break;
@@ -1120,7 +1120,7 @@ void handleAttribute( uint16_t u16ShortAddress,
 // ------------------------------------------------------------------
 // Main
 // ------------------------------------------------------------------
-
+//-此进程的上流信息是队列传递过来的
 /**
  * \brief ZCB's main entry point: opens the IoT database,
  * opens the serial communication to the ZCB-JenOS (this starts up two extra threads
@@ -1176,7 +1176,7 @@ int main(int argc, char *argv[])
 
         DEBUG_PRINTF( "Init parsers ...\n" );
 
-        cmdInit();
+        cmdInit();	//-这里的初始化其实就是在结构体中填写名称和值对,这样可以个性化的查找,对应大系统很自由
         lmpInit();
         grpInit();
         plgInit();
