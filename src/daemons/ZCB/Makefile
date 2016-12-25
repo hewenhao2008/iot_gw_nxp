@@ -4,7 +4,7 @@
 # Author:    nlv10677
 # Copyright: NXP B.V. 2014. All rights reserved
 # ------------------------------------------------------------------
-
+#-floor/ceil/pow是数学库里提供的函数，默认gcc不会自动链接math库，要手动提供,加上-lm选项就好了
 # LDFLAGS += -ldaemon -lpthread
 LDFLAGS += -lpthread -lm
 
@@ -47,13 +47,13 @@ OBJECTS = zb_main.o \
 	../../IotCommon/newLog.o \
 	../../IotCommon/cJSON/cJSON.o
 
-
+#-下面的实现编译
 %.o: %.c $(HEADERS)
 	$(CC) $(CFLAGS) $(INCLUDES) -Wall -std=gnu99 -g -c $< -o $@
 
 
 all: clean build
-
+#-下面的实现链接
 build: $(OBJECTS)
 	$(CC) $(LDFLAGS) $(OBJECTS) -o $(TARGET) -lc
 	cp $(TARGET) ../../swupdate/images/usr/bin/

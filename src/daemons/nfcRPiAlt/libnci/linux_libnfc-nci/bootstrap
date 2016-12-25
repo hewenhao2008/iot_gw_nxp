@@ -1,9 +1,0 @@
-#!/bin/sh
-
-mkdir -p m4
-aclocal
-autoheader
-libtoolize
-automake --add-missing
-autoreconf -fi
-rm -Rf autom4te.cache
