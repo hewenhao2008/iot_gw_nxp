@@ -13,6 +13,7 @@ all:
 #-	cd nfcRPiAlt;               make
 	cd GwDiscovery;             make
 	cd dbp;                     make
+	cd mqttclient;              make
 
 build:
 	cd ZCB;                     make build
@@ -21,6 +22,7 @@ build:
 #-	cd nfcRPiAlt;               make build
 	cd GwDiscovery;             make build
 	cd dbp;                     make build
+	cd mqttclient;              make build
 
 clean:
 	cd ZCB;                     make clean
@@ -29,5 +31,6 @@ clean:
 #-	cd nfcRPiAlt;               make clean
 	cd GwDiscovery;             make clean
 	cd dbp;                     make clean
+	cd mqttclient;              make clean
 
 
