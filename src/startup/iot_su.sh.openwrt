@@ -1,7 +1,7 @@
 #!/bin/sh
 
 SCRIPT=/tmp/iot_update.sh
-
+#-一直坚持更新文件是否存在,如果在就启动更新,然后删除,继续等待有新的更新文件
 while [ 1 ]
 do
     echo Loop

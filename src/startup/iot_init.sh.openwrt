@@ -8,7 +8,9 @@
 # ---------------------------------------------------------------
 # Set the persmissions right of our uploaded images
 # ---------------------------------------------------------------
-
+#-chmod修改权限
+#-+ 表示增加权限
+#-x 表示可执行
 chmod +x /etc/init.d/iot_*
 chmod +x /usr/bin/iot_*
 chmod +x /usr/bin/killbyname
@@ -17,7 +19,7 @@ chmod +x /www/cgi-bin/iot_*
 # ---------------------------------------------------------------
 # Create some directories if they not already exists
 # ---------------------------------------------------------------
-
+#-－d ：判断制定的是否为目录,,下面实现了如果不是就创建目录
 if [ ! -d /usr/share/iot ]; then
     mkdir /usr/share/iot
 fi
@@ -42,7 +44,7 @@ fi
 # Remove old JIP daemons
 # The test is there to allow multiple calls of this script
 # ---------------------------------------------------------------
-
+#-－f：判断制定的是否为文件
 if [ -f /etc/rc.d/S996LoWPAN ];
 then
 	echo Remove 6LoWPAN startup script in /etc/rc.d
@@ -76,7 +78,7 @@ fi
 # ---------------------------------------------------------------
 # Kill the current JIP processes
 # ---------------------------------------------------------------
-
+#-killbyname是一个脚本,这里可以通过这名字调用它
 killbyname 6LoWPANd
 killbyname JIPd
 killbyname zigbee-jip-daemon
@@ -95,7 +97,7 @@ fi
 # Create automatic startup scripts for our new IoT programs/daemons
 # The test is there to allow multiple calls of this script
 # ---------------------------------------------------------------
-
+#-ln 链接命令,,首先判断是否存在链接文件,如果不存在就创建
 if [ ! -f /etc/rc.d/S99iot_zb_initd ];
 then
 	ln -s /etc/init.d/iot_zb_initd /etc/rc.d/S99iot_zb_initd
@@ -134,7 +136,7 @@ fi
 # ---------------------------------------------------------------
 # Upgrade the new Coordinator image
 # ---------------------------------------------------------------
-
+#-调用脚本进行程序更新
 if [ -f /tmp/ZigbeeNodeControlBridge_JN5168.bin ];
 then
 	JennicModuleProgram.sh /tmp/ZigbeeNodeControlBridge_JN5168.bin

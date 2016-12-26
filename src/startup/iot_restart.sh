@@ -3,7 +3,7 @@
 # Author:    nlv10677
 # Copyright: NXP B.V. 2014. All rights reserved
 # ------------------------------------------------------------------
-
+#-就是一个脚本文件,可以允许很多命令
 /etc/init.d/iot_zb_initd stop > /dev/null
 /etc/init.d/iot_sj_initd stop > /dev/null
 /etc/init.d/iot_ci_initd stop > /dev/null

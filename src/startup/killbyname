@@ -9,7 +9,8 @@
 # export pid=`ps -aux | grep $1 | awk 'NR==1{print $1}'`; kill -9 $pid
 
 #export pid=`pidof $1`; kill -9 $pid
-
+#-$1表示第一个参数
+#-awk是一个文本工具,下面应该是实现所有pid号的打印
 #pid=`pidof $1`
 pid=`pidof $1 | awk '{print $1;}'`
 if [ ! -z $pid ]; then

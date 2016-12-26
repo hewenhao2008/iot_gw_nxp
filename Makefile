@@ -49,6 +49,7 @@ ifeq ("$(CONFIG_IOT_GW_ZB_2_0)","y")
 endif
 
 #-交叉编译配置,为了适合其他系统的
+#-针对不同系统,这里需要特别修改
 IOT_GW_CROSS_CONFIG= \
 	TARGET_MACHINE=RASPBERRYPI \
 	TARGET_OS=OPENWRT \

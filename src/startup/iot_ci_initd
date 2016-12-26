@@ -3,11 +3,17 @@
 # Author:    nlv10677
 # Copyright: NXP B.V. 2014. All rights reserved
 # ------------------------------------------------------------------
-
+#-#!/bin/sh     //注释:表示该脚本文件运行的时候 ，调用/bin/sh来解释
+#-script本身并不解析命令行参数，而是由/etc/rc.common来完成。即引用/etc/rc.common脚本的处理
+#-所以说这个文件本身就是一个shell脚本而以
+#-下面的关键字决定了这个脚本的运行次序
 START=99
 
 PROG=iot_ci
-
+#-下面这是启动时实际调用的地方
+#-/dev/null这是一个无底洞,把输入结果丢弃就给他
+#--z代表的是该变量是否有值。
+#-pidof用于找出正在运行的程序的进程PID
 start () {
     echo Starting /usr/bin/$PROG
     if [ -z `pidof $PROG` ]; then

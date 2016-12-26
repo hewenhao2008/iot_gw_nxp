@@ -4,7 +4,7 @@
 # Author:    nlv10677
 # Copyright: NXP B.V. 2014. All rights reserved
 # ------------------------------------------------------------------
-
+#-Æô¶¯½Å±¾
 # Diversity scripts
 ifeq ($(TARGET_MACHINE),RASPBERRYPI)
 ifeq ($(TARGET_OS),RASPBIAN)

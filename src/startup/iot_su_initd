@@ -27,7 +27,9 @@ do_start () {
 do_stop () {
 	echo Will not stop $PROG, must do by hand
 }
-
+#-$1既是外部传参的值，如：运行该脚本的时候：./test.sh apple
+#- 满足条件后需要使用双分号跳出结构 ;;
+#-* 表示以上都不匹配时执行
 case "$1" in
   start)
 	do_start
