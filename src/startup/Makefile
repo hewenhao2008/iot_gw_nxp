@@ -35,7 +35,9 @@ INITD_SCRIPTS  = \
 	iot_dbp_initd
 	
 all: clean build
-
+#-install 作用是拷贝文件
+#-下面这句话的含义可以这样理解首先判断../swupdate/images/usr/bin/是否存在,如果不存在创建目录
+#-然后把前面的文件复制成后面的文件
 build:
 	install -D $(INIT_SCRIPT)          ../swupdate/images/usr/bin/iot_init.sh
 	install -D $(UPDATE_SCRIPT)        ../swupdate/images/usr/bin/iot_su.sh
