@@ -1264,7 +1264,7 @@ int newDbGetZcb( char * mac, newdb_zcb_t * pzcb ) {
  * \param pzcb Pointer to a caller's entry structure
  * \returns 1 when found, 0 when not found
  */
-int newDbGetZcbSaddr( int saddr, newdb_zcb_t * pzcb ) {
+int newDbGetZcbSaddr( int saddr, newdb_zcb_t * pzcb ) {//-根据短地址获取信息
     int found = 0;
     if ( newDbSharedMemory && pzcb ) {
         newdb_t * pnewdb = (newdb_t *)newDbSharedMemory;
@@ -1360,7 +1360,7 @@ int newDbSetZcb( newdb_zcb_t * pzcb ) {
         pzcb->lastupdate = now;
         newdb_t * pnewdb = (newdb_t *)newDbSharedMemory;
         semP( NEWDB_SEMKEY );
-        memcpy( &pnewdb->zcb[pzcb->id], pzcb, sizeof( newdb_zcb_t ) );
+        memcpy( &pnewdb->zcb[pzcb->id], pzcb, sizeof( newdb_zcb_t ) );	//-填写了数据库
         pnewdb->numwrites++;
         pnewdb->lastupdate_zcb = now;
         semV( NEWDB_SEMKEY );

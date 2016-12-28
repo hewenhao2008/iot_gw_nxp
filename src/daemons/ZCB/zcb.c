@@ -90,7 +90,7 @@ static void ZCB_HandleLog                       (void *pvUser, uint16_t u16Lengt
  * @param extendedAddress
  * @return 1 if a new node is created, 0 else
  */
-int zcbAddNode( uint16_t  shortAddress, uint64_t extendedAddress ) {
+int zcbAddNode( uint16_t  shortAddress, uint64_t extendedAddress ) {//-当下面有会说明端点消息上来,然后触发更新数据库
     DEBUG_PRINTF( "Add node 0x%04x, 0x%016llx\n",
             (int)shortAddress, (long long unsigned int)extendedAddress );
     int iReturn = 1;
