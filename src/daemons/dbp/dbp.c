@@ -176,12 +176,23 @@ int dbp_report_temp(int temp, char *mac, char *output)	//-命令查询特定设备信息并
 #else
         strcpy(parent_mac, temp_parent);
 #endif
-                
+
+
+#if DBP_SUPPORT_clients_mode                
         /* temperature unit is centi celcius (Celcius * 100) */
         if(sprintf(output, "dbp state %08x %s 0105%04x %s\r\n", (int) time(NULL), mac, dbp_swap_uint16(temperature), parent_mac) < 0){
                 printf("sprintf() failed");
                 return -1;
         }
+#else
+				/* temperature unit is centi celcius (Celcius * 100) */
+				//-iot_td/ZigBee/HA/NXP/route010203040506/dongle010203040506/device0102030405060708/tmp				---最终发布的主题
+				
+        if(sprintf(output, "device%s 0105%04x %s\r\n", (int) time(NULL), mac, dbp_swap_uint16(temperature), parent_mac) < 0){
+                printf("sprintf() failed");
+                return -1;
+        }
+#endif
         
         return 0;
 }

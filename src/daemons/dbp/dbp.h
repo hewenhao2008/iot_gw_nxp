@@ -33,6 +33,8 @@
 #include <stdbool.h>
 
 #define DBP_SUPPORT_PARENT_ADDRESS	0
+#define DBP_SUPPORT_clients_mode	0		//-1 常规TCP连接	0	MQTT客户端
+
 
 #define QUERY_LOC			"loc:"
 #define QUERY_STATE			"stat:"
