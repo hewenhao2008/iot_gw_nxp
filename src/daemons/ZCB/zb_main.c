@@ -209,13 +209,13 @@ static void zcbHandleAnnounce( char * mac, char * devstr, char * ty ) {
         newDbStrNcpy( device.ty, ty, LEN_TY );
         device.flags |= FLAG_DEV_JOINED;
         /* Set OnOff state into device DB */
-        newDbSetDevice( &device );
+        newDbSetDevice( &device );	//-填写好之后写入到数据库中
     } else if ( newDbGetNewDevice( mac, &device ) ) {  // 3-sep-15: joins always insert
         device.dev = dev;
         newDbStrNcpy( device.ty, ty, LEN_TY );
         device.flags = FLAG_DEV_JOINED | FLAG_ADDED_BY_GW;
         /* Set OnOff state into device DB */
-        strcpy(device.cmd, sNode.info);
+        strcpy(device.cmd, sNode.info);	//-在新增加设备的时候这里联系上了zcb和device关系
         newDbSetDevice( &device );
     }
 
@@ -493,7 +493,7 @@ tsDeviceMapEntry saDeviceMap[] =
  * \param u64IEEEAddress Mac address of the device
  * \param u16DeviceID Simple descriptor device ID
  */
-
+//-申明设备
 void announceDevice(
     uint64_t u64IEEEAddress,
     uint16_t u16DeviceId,
@@ -510,7 +510,7 @@ void announceDevice(
 
     psDevice = &saDeviceMap[0];
     u642nibblestr( u64IEEEAddress, mac );
-    newDbGetZcb(mac, &sZcb);
+    newDbGetZcb(mac, &sZcb);	//-从这里可以看出,所有的终端设备在数据库中保存在zcb中
 
     /* If case of Id overlap, look up for device Id to use */
     for (i = 0;

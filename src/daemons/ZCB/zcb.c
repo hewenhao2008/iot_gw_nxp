@@ -98,19 +98,19 @@ int zcbAddNode( uint16_t  shortAddress, uint64_t extendedAddress ) {//-µ±ÏÂÃæÓÐ»
     u642nibblestr( extendedAddress, mac );
     
     newdb_zcb_t zcb;
-    if ( newDbGetZcbSaddr( shortAddress, &zcb ) ) {
+    if ( newDbGetZcbSaddr( shortAddress, &zcb ) ) {//-Èç¹û´æÔÚÕâÑùµÄ¶ÌµØÖ·¾Í¸üÐÂÒ»´ÎmacµØÖ·
         zcb.status = ZCB_STATUS_JOINED;
         strcpy( zcb.mac, mac );
         newDbSetZcb( &zcb );
         
-    } else if ( newDbGetZcb( mac, &zcb ) ) {
+    } else if ( newDbGetZcb( mac, &zcb ) ) {//-Èç¹û´æÔÚÕâÑùµÄmacµØÖ·¾Í¸üÐÂÒ»´Î¶ÌµØÖ·
         zcb.status = ZCB_STATUS_JOINED;
         zcb.saddr  = shortAddress;
         newDbSetZcb( &zcb );
     
     } else if ( newDbGetNewZcb( mac, &zcb ) ) {
         zcb.status = ZCB_STATUS_JOINED;
-        zcb.saddr  = shortAddress;
+        zcb.saddr  = shortAddress;	//-ÕâÀï¼ÇÂ¼µÄ²»ÊÇzcbµØÖ·,¶øÊÇÖÕ¶ËÉè±¸µØÖ·
         zcb.type   = SIMPLE_DESCR_UNKNOWN;
         newDbSetZcb( &zcb );
         iReturn = 0;
@@ -1258,7 +1258,7 @@ static void ZCB_HandleNetworkJoined(void *pvUser, uint16_t u16Length, void *pvMe
 
 
 
-static void ZCB_HandleDeviceAnnounce(void *pvUser, uint16_t u16Length, void *pvMessage) {
+static void ZCB_HandleDeviceAnnounce(void *pvUser, uint16_t u16Length, void *pvMessage) {//-ÖÕ¶ËÉè±¸·¢ËÍµÄÍ¨¸æ
     DEBUG_PRINTF( "\n************ ZCB_HandleDeviceAnnounce\n" );
 
     struct _tsDeviceAnnounce {
@@ -1278,7 +1278,7 @@ static void ZCB_HandleDeviceAnnounce(void *pvUser, uint16_t u16Length, void *pvM
             );
 
 
-    zcbAddNode(psMessage->u16ShortAddress, psMessage->u64IEEEAddress);
+    zcbAddNode(psMessage->u16ShortAddress, psMessage->u64IEEEAddress);	//-ÔÚÍ¨¸æ±¨ÎÄÄÚ°üº¬ÖÕ¶ËÉè±¸µÄ¶ÌµØÖ·,ºÍmacµØÖ·
     newDbGetZcbSaddr(psMessage->u16ShortAddress, &sZcb);
 
     if (sZcb.type == SIMPLE_DESCR_UNKNOWN)
@@ -1566,7 +1566,7 @@ static void ZCB_HandleReadAttrResp(
   uint16_t    u16ShortAddr = ntohs(psMessage->u16ShortAddress);
   uint64_t    extendedAddress= zcbNodeGetExtendedAddress(u16ShortAddr);
 
-  if (!newDbGetZcbSaddr(u16ShortAddr, &sZcbDev))
+  if (!newDbGetZcbSaddr(u16ShortAddr, &sZcbDev))	//-ÅÐ¶ÏÓ¦´ðµÄ±¨ÎÄµÄ¶ÌµØÖ·ÊÇ·ñÔÚzcbÖÐ
   {
     DEBUG_PRINTF( "Error : device with short address %04x not found in DB\n", u16ShortAddr);
   }

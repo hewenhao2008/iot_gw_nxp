@@ -64,6 +64,7 @@
 // #define ALSO_SAVE_PLUGHIST   1
 #define PLUGHIST_AUTO_REMOVE_OLDEST
 
+//-zcb表示一个终端设备,而devices是zcb的补充,可能一个终端设备中有几个属性,他们的关系是既对等又分层的关系
 typedef struct newdb {
     int version;
     
@@ -767,7 +768,7 @@ int newDbEmptySystem( void ) {
  * \param pdev Pointer to a caller's entry structure
  * \returns 1 when found, 0 when not found
  */
-int newDbGetDevice( char * mac, newdb_dev_t * pdev ) {
+int newDbGetDevice( char * mac, newdb_dev_t * pdev ) {//-通过mac地址获取设备信息
     int found = 0;
     if ( newDbSharedMemory && mac && pdev ) {
         newdb_t * pnewdb = (newdb_t *)newDbSharedMemory;
@@ -820,7 +821,7 @@ int newDbGetDeviceId( int id, newdb_dev_t * pdev ) {
  * \param pdev Pointer to a caller's entry structure
  * \returns 1 when found, 0 when not found
  */
-int newDbGetNewDevice( char * mac, newdb_dev_t * pdev ) {
+int newDbGetNewDevice( char * mac, newdb_dev_t * pdev ) {//-在设备表中增加一个新设备,并复制出来
     int added = 0, index = 0;
     index = index;   // Compiler warning
     if ( newDbSharedMemory && mac && pdev ) {
@@ -1231,7 +1232,7 @@ int newDbEmptyPlugHist( void ) {
  * \param pzcb Pointer to a caller's entry structure
  * \returns 1 when found, 0 when not found
  */
-int newDbGetZcb( char * mac, newdb_zcb_t * pzcb ) {
+int newDbGetZcb( char * mac, newdb_zcb_t * pzcb ) {//-根据mac获取到zcb的信息
     int found = 0;
     if ( newDbSharedMemory && mac && pzcb ) {
         newdb_t * pnewdb = (newdb_t *)newDbSharedMemory;
