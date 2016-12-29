@@ -165,7 +165,7 @@ int zcbNodeSetDeviceID( uint16_t shortAddress, uint16_t deviceID ) {
             (int)deviceID, (int)shortAddress );
     
     newdb_zcb_t zcb;
-    if ( newDbGetZcbSaddr( shortAddress, &zcb ) ) {
+    if ( newDbGetZcbSaddr( shortAddress, &zcb ) ) {//-这里也能说明所有的设备使用zcb表示的
         if ( zcb.type != deviceID ) {
             // Only act when a change is necessary
             zcb.type = deviceID;
@@ -1197,7 +1197,7 @@ static void ZCB_HandleNodeCommandIDList(void *pvUser, uint16_t u16Length, void *
 }
 
 
-static void ZCB_HandleNetworkJoined(void *pvUser, uint16_t u16Length, void *pvMessage) {
+static void ZCB_HandleNetworkJoined(void *pvUser, uint16_t u16Length, void *pvMessage) {//-加入网络或建立网络的处理
     DEBUG_PRINTF( "\n************ ZCB_HandleNetworkJoined\n" );
 
     struct _tsNetworkJoinedFormedShort {
@@ -1217,7 +1217,7 @@ static void ZCB_HandleNetworkJoined(void *pvUser, uint16_t u16Length, void *pvMe
     } __attribute__((__packed__)) *psMessageExt = (struct _tsNetworkJoinedFormedExtended *)pvMessage;
 
     psMessageShort->u16ShortAddress = ntohs(psMessageShort->u16ShortAddress);
-    psMessageShort->u64IEEEAddress  = be64toh(psMessageShort->u64IEEEAddress);
+    psMessageShort->u64IEEEAddress  = be64toh(psMessageShort->u64IEEEAddress);	//-从接收到的消息中获取信息
 
     zcbAddNode( psMessageShort->u16ShortAddress, psMessageShort->u64IEEEAddress );
     

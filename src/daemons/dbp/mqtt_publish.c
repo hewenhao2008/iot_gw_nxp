@@ -70,8 +70,25 @@ static int dbp_send_data_to_clients_mqtt(char *data)
 	Qos = QOS_EXACTLY_ONCE; //Qos
 	ret = mqtt_publish(m, topic, data, Qos);//发布消息
 	printf("mqtt client publish,  return code = %d\n", ret);
+	
+}
+
+
+
+
+
+int mqtt_publish_close(void) 
+{
 	//-下面是和服务器断开连接,并且清除为了连接而建立的系列环境
 	mqtt_disconnect(m); //disconnect
 	mqtt_delete(m);  //delete mqtt client object
 }
+
+
+
+
+
+
+
+
 
