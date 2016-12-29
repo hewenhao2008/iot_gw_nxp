@@ -54,6 +54,7 @@
 #include "dbp.h"
 #include "dbp_search.h"
 #include "dbp_loc_receiver.h"
+#include "mqtt_publish.h"
 
 /* version */
 #define DBP_MAJOR_VERSION    "0"
@@ -312,6 +313,12 @@ int main(int argc, char *argv[])
         exit(1);
     }
     
+    mqtt_publish_create();	//-创建一个客户端对象
+    
+    mqtt_Pclient_connect();	//-连接服务器
+    
+    mqtt_Sclient_receiver();	//-接收订阅
+    
     while(1){//-监视有没有客户端连接,如果有的话专门创立一个独立处理线程
         //-本函数从s的等待连接队列中抽取第一个连接，创建一个与s同类的新的套接口并返回句柄。
         //-如果队列中无等待连接，且套接口为阻塞方式，则accept()阻塞调用进程直至新的连接出现。
@@ -330,6 +337,8 @@ int main(int argc, char *argv[])
         dbp_msg_receiver(new_fd);
         
     }
+    
+    mqtt_publish_close();
     
     return 0;
 }
@@ -440,6 +449,60 @@ static void *dbp_client_handler(void *arg)
     pthread_exit(NULL);
     
     return NULL;
+}
+
+static void mqtt_Pclient_connect(int socket_fd)
+{
+		pthread_t client_handler_thread;
+        
+    
+    //-创建线程 thread记录了线程的ID号 attr设置线程属性 fn线程执行的主函数 运行函数的参数
+    if(pthread_create(&client_handler_thread, NULL, &mqtt_Pclient_handler, NULL) != 0){
+        perror("Failed to create zigbee mqtt connect thread");
+        return;
+    }
+    
+    //-创建一个线程默认的状态是joinable。
+    //- 如果一个线程结束运行但没有被join,则它的状态类似于进程中的Zombie Process,即还有一部
+    //-分资源没有被回收（退出状态码），所以创建线程者应该pthread_join来等待线程运行结束，并
+    //-可得到线程的退出代码，回收其资源（类似于wait,waitpid)
+    //-但是调用pthread_join(pthread_id)后，如果该线程没有运行结束，调用者会被阻塞，在有些情
+    //-况下我们并不希望如此，比如在Web服务器中当主线程为每个新来的链接创建一个子线程进行处理
+    //-的时候，主线程并不希望因为调用pthread_join而阻塞（因为还要继续处理之后到来的链接），
+    //-这时可以在子线程中加入代码
+		//-pthread_detach(pthread_self())
+		//-或者父线程调用
+		//-pthread_detach(thread_id)（非阻塞，可立即返回）
+		//-这将该子线程的状态设置为detached,则该线程运行结束后会自动释放所有资源。
+    pthread_detach(client_handler_thread);	//-仅仅为了主线程不阻塞
+
+}
+
+static void mqtt_Sclient_receiver(int socket_fd)
+{
+		pthread_t client_handler_thread;
+        
+    
+    //-创建线程 thread记录了线程的ID号 attr设置线程属性 fn线程执行的主函数 运行函数的参数
+    if(pthread_create(&client_handler_thread, NULL, &mqtt_Preceive_handler, NULL) != 0){
+        perror("Failed to create zigbee mqtt receiver thread");
+        return;
+    }
+    
+    //-创建一个线程默认的状态是joinable。
+    //- 如果一个线程结束运行但没有被join,则它的状态类似于进程中的Zombie Process,即还有一部
+    //-分资源没有被回收（退出状态码），所以创建线程者应该pthread_join来等待线程运行结束，并
+    //-可得到线程的退出代码，回收其资源（类似于wait,waitpid)
+    //-但是调用pthread_join(pthread_id)后，如果该线程没有运行结束，调用者会被阻塞，在有些情
+    //-况下我们并不希望如此，比如在Web服务器中当主线程为每个新来的链接创建一个子线程进行处理
+    //-的时候，主线程并不希望因为调用pthread_join而阻塞（因为还要继续处理之后到来的链接），
+    //-这时可以在子线程中加入代码
+		//-pthread_detach(pthread_self())
+		//-或者父线程调用
+		//-pthread_detach(thread_id)（非阻塞，可立即返回）
+		//-这将该子线程的状态设置为detached,则该线程运行结束后会自动释放所有资源。
+    pthread_detach(client_handler_thread);	//-仅仅为了主线程不阻塞
+
 }
 
 static void dbp_msg_receiver(int socket_fd)
@@ -628,7 +691,11 @@ static int dbp_update_temperature(char *mac)
     value = parsingGetIntAttr("tmp");	//-通过比较名字获取内部对应数据,这样做的目的是外部形象,内部方便使用
 	if(value != INT_MIN){
 		if(dbp_report_temp(value, mac, output) == 0){//-这里里面对数据进行了组织,为发送做准备
+#if DBP_SUPPORT_clients_mode			
 			dbp_send_data_to_clients(output);	//-这里把温度发送给了客户端,到达了最底层
+#else
+			dbp_send_data_to_clients_mqtt(output, value);
+#endif			
 			printf("temp sent to client");
 		}
 	}

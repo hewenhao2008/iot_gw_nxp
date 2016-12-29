@@ -14,6 +14,8 @@ OBJECTS = dbp_main.o \
 	dbp.o \
 	dbp_search.o \
 	dbp_loc_receiver.o \
+	mqtt_publish.o \
+	mqtt_subscribe.o \
 	../../IotCommon/atoi.o \
 	../../IotCommon/iotError.o \
 	../../IotCommon/iotSemaphore.o \
