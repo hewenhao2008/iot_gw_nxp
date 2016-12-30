@@ -47,6 +47,8 @@
 #include "iotSleep.h"
 #include "gateway.h"
 
+#include "mqtt_client.h"
+
 #define SOCKET_HOST         "0.0.0.0"
 #define SOCKET_PORT         "2001"
 
@@ -79,6 +81,27 @@ static pid_t children[MAXCHILDREN];
 
 static char socketHost[80];
 static char socketPort[80];
+
+
+//-mqtt
+
+int supplement_topic(char *buff)
+{
+	uint16_t  shortAddress = 0;
+	//-route010203040506/dongle010203040506/cmd
+	//-coordinator0102030405060708/cmd
+	//-DEBUG_PRINTF( "Get node extended address for 0x%04x\n", (int)shortAddress );
+    
+  newdb_zcb_t zcb;
+  if ( newDbGetZcbSaddr( shortAddress, &zcb ) ) {
+      strcat(buff,"Coordinator");  
+			strcat(buff,zcb.mac);
+			strcat(buff,"/cmd");
+			//-DEBUG_PRINTF( "sectional topic = %s\n", buff );
+			//-topic_flags = 1;
+  }
+}
+
 
 // -------------------------------------------------------------
 // Child handling
@@ -337,6 +360,30 @@ static void handleClient( int socketHandle ) {//-¸ºÔð¶Ô¿Í»§¶Ë·¢À´µÄÏûÏ¢½øÐÐ½âÎö´
     newDbClose();
 }
 
+static void handleMqttMessage( mqtt_client *m) {//-¶Ô½ÓÊÕµ½µÄÒ»ÌõÓÐÐ§ÏûÏ¢½øÐÐ´¦Àí
+	
+		//-m->received_topic; 
+		char *mqttInput_pt = m->received_message;
+		int len = m->received_message_len;
+	
+		int i;
+            for ( i=0; i<len; i++ ) {//-°Ñ¶ÁÈ¡µÄÍøÂçÌ×½Ó×Ö×ª´æµ½´ý´¦ÀíµÄµØ·½
+                // Transfer all non-printable bytes into '.'
+                mqttInput_pt[i] = convertPrintable( mqttInput_pt[i] );
+            }
+
+#ifdef MAIN_DEBUG
+            // printf( "Incoming packet '%s', length %d\n",
+            //          socketInputBuffer, len );
+            dump( mqttInput_pt, len );
+#endif
+            sprintf( logbuffer, "Socket - %s", mqttInput_pt );
+            newLogAdd( NEWLOG_FROM_CONTROL_INTERFACE, logbuffer );
+            
+            for ( i=0; i<len; i++ ) {
+                jsonEat( mqttInput_pt[i] );
+            }
+}
 // -------------------------------------------------------------
 // DB saver
 // -------------------------------------------------------------
@@ -392,6 +439,12 @@ static void vQuitSignalHandler (int sig) {
 }
 
 // ------------------------------------------------------------------------
+// Mqtt
+// ------------------------------------------------------------------------
+
+///////////////////////////////////////////////////////////////////////////
+
+// ------------------------------------------------------------------------
 // Main
 // ------------------------------------------------------------------------
 
@@ -409,6 +462,14 @@ static void vQuitSignalHandler (int sig) {
 int main( int argc, char * argv[] ) {
     int skip;
     signed char opt;
+    mqtt_client *m; //mqtt_client ¶ÔÏóÖ¸Õë
+		int ret; //·µ»ØÖµ
+		char *host = "messagesight.demos.ibm.com:1883";//²âÊÔ·þÎñÆ÷
+		char *topic = "iot_td/ZigBee/HA/NXP/"; //Ö÷Ìâ
+		char *client_id = "clientid33883";//¿Í»§¶ËID£» ¶Ô²âÊÔ·þÎñÆ÷£¬¿ÉÒÔËæ±ãÐ´
+		char *username = NULL;//ÓÃ»§Ãû£¬ÓÃÓÚÑéÖ¤Éí·Ý¡£¶Ô²âÊÔ·þÎñÆ÷£¬ÎÞ¡£
+		char *password = NULL;//ÃÜÂë£¬ÓÃÓÚÑéÖ¤Éí·Ý¡£¶Ô²âÊÔ·þÎñÆ÷£¬ÎÞ¡£
+		int Qos; //Quality of Service
     
     initChildren();	//-¸øÒ»¸ö½á¹¹¸³³õÖµ
 
@@ -472,7 +533,18 @@ int main( int argc, char * argv[] ) {
     newLogAdd( NEWLOG_FROM_CONTROL_INTERFACE, "Opening host socket" );
 
     int serverSocketHandle = socketOpen( socketHost, socketPort, 1 );
-    if ( serverSocketHandle >= 0 ) {
+    //-ÏÂÃæÕâ¸öº¯Êý´úÌæÉÏÃæº¯ÊýµÄ¹¦ÄÜ,²»Ê¹ÓÃ¼òµ¥µÄTCP¶øÖ±½Ó×ßMQTT·þÎñÆ÷
+    //create new mqtt client object
+		m = mqtt_new(host, MQTT_PORT, client_id); //´´½¨¶ÔÏó£¬MQTT_PORT = 1883
+		if ( m == NULL ) {
+			printf("mqtt client create failure, return  code = %d\n", errno);
+			//-return 1;
+		} else {
+			printf("mqtt client created\n");
+		}
+	
+    //-if ( serverSocketHandle >= 0 ) {
+    if ( m != NULL ) {
         //-ºÃ¶à³ÌÐòÀïÃæ¶¼Ê¹ÓÃÁËÕâÑùµÄ½âÎöÆ÷,µ«ÊÇÊµ¼Ê¾Í¶¨ÒåÁËÁ½¸ö,ËùÒÔÓ¦¸ÃÊÇ¾Ö²¿±äÁ¿,ÕâÑùÃ¿¸ö³ÌÐò¶ÎÖÐ¶¼ÓÐ,ÄÚ²¿±£³Ö²»±ä
         jsonSetOnError(ci_onError);
         jsonSetOnObjectStart(ci_onObjectStart);
@@ -499,7 +571,7 @@ int main( int argc, char * argv[] ) {
             socketHost, socketPort );
 
         while ( running ) {//-³ÖÐøµÈ´ý¿Í»§¶ËÁ¬½Ó,È»ºó´¦Àí¿Í»§¶ËÐÅÏ¢
-
+#if 0
             iotError = IOT_ERROR_NONE;
 
             int clientSocketHandle = socketAccept( serverSocketHandle );
@@ -568,10 +640,45 @@ int main( int argc, char * argv[] ) {
                 skip = 0;
                 checkOpenFiles( 5 );   // STDIN,STDOUT,STDERR,ServerSocket,DB
             }
+#endif
+						//-³ÖÐø±£³ÖMQTTÁ¬½Ó
+						if(mqtt_is_connected(m) == 0)
+						{
+							//connect to server
+							ret = mqtt_connect(m, username, password); //Á¬½Ó·þÎñÆ÷
+							if (ret != MQTT_SUCCESS ) {
+								printf("mqtt client connect failure, return code = %d\n", ret);
+								//-return 1;
+							} else {
+								printf("mqtt client connect\n");
+								
+								//subscribe
+								Qos = QOS_EXACTLY_ONCE;
+								//-²¹³äÖ÷Ìâ
+								supplement_topic(topic);
+								ret = mqtt_subscribe(m, topic, Qos);//¶©ÔÄÏûÏ¢
+								printf("mqtt client subscribe %s,  return code = %d\n", topic, ret);
+							}
+							mqtt_sleep(200); //sleep a while
+						}
+						else
+						{
+							int timeout = 200;
+							if ( mqtt_receive(m, timeout) == MQTT_SUCCESS ) { //recieve message£¬½ÓÊÕÏûÏ¢
+								printf("received Topic=%s, Message=%s\n", m->received_topic, m->received_message);
+								handleMqttMessage(m);
+							}
+							mqtt_sleep(200); //sleep a while
+						}
+						
         }
 
         // printf( "Control Interface exit\n");
         socketClose( serverSocketHandle );
+        
+        mqtt_disconnect(m); //disconnect
+				printf("mqtt client disconnect");
+				mqtt_delete(m);  //delete mqtt client object
 
     } else {
         sprintf( logbuffer, "Error opening Control Interface socket %s/%s",

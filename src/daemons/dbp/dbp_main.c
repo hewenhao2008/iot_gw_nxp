@@ -54,7 +54,7 @@
 #include "dbp.h"
 #include "dbp_search.h"
 #include "dbp_loc_receiver.h"
-#include "mqtt_publish.h"
+#include "mqtt_client.h"
 
 /* version */
 #define DBP_MAJOR_VERSION    "0"
@@ -87,6 +87,17 @@ char * intAttrs[NUMINTATTRS] = {"tmp", "hum", "als", "lqi", "bat", "batl", "xloc
 char * stringAttrs[NUMSTRINGATTRS] = {"mac", "nm", "par"};
 int    stringMaxlens[NUMSTRINGATTRS] = {16, 16, 16};
 
+//-MQTT¶¨Òå
+mqtt_client *m; //mqtt_client ¶ÔÏóÖ¸Õë
+char *topic = "iot_td/ZigBee/HA/NXP/"; //Ö÷Ìâ
+int topic_flags = 0;	//-0 Ã»ÓĞ³É¹¦Ôö¼ÓÖ÷Ìå,	1 ÓĞÁËÍêÕûÖ÷Ìâ
+int mqtt_client_connect_flags = 0;	//-0 ²»´æÔÚÁ¬½Ó,1 ´æÔÚÁ¬½Ó
+char *host = "messagesight.demos.ibm.com:1883";//²âÊÔ·şÎñÆ÷
+char *client_id = "clientid33883";//¿Í»§¶ËID£» ¶Ô²âÊÔ·şÎñÆ÷£¬¿ÉÒÔËæ±ãĞ´
+char *username = NULL;//ÓÃ»§Ãû£¬ÓÃÓÚÑéÖ¤Éí·İ¡£¶Ô²âÊÔ·şÎñÆ÷£¬ÎŞ¡£
+char *password = NULL;//ÃÜÂë£¬ÓÃÓÚÑéÖ¤Éí·İ¡£¶Ô²âÊÔ·şÎñÆ÷£¬ÎŞ¡£
+	
+
 void dbp_external_send_data_to_clients(char *data);
 
 /* local function prototypes */
@@ -108,6 +119,26 @@ static void dbp_remove_socket(int index);
 static int dbp_get_socket(int index);
 static int dbp_send_data_to_clients(char *data);
 static void dbp_location_info(char *mac);
+
+static void mqtt_Pclient_connect(void);
+int dbp_send_data_to_clients_mqtt(char *buf,int data);
+
+int supplement_topic(void)
+{
+	uint16_t  shortAddress = 0;
+	//-route010203040506/dongle010203040506/device0102030405060708/tmp
+	//-Coordinator0102030405060708/
+	//-DEBUG_PRINTF( "Get node extended address for 0x%04x\n", (int)shortAddress );
+    
+  newdb_zcb_t zcb;
+  if ( newDbGetZcbSaddr( shortAddress, &zcb ) ) {
+      strcat(topic,"Coordinator");  
+			strcat(topic,zcb.mac);
+			strcat(topic,"/");
+			//-DEBUG_PRINTF( "sectional topic = %s\n", topic );
+			topic_flags = 1;
+  }
+}
 
 static void dbp_onError(int error, char * errtext, char * lastchars) {
     printf("onError( %d, %s ) @ %s\n", error, errtext, lastchars);
@@ -313,11 +344,19 @@ int main(int argc, char *argv[])
         exit(1);
     }
     
-    mqtt_publish_create();	//-´´½¨Ò»¸ö¿Í»§¶Ë¶ÔÏó
+    //-ÏÂÃæÕâ¸öº¯Êı´úÌæÉÏÃæº¯ÊıµÄ¹¦ÄÜ,²»Ê¹ÓÃ¼òµ¥µÄTCP¶øÖ±½Ó×ßMQTT·şÎñÆ÷
+    //create new mqtt client object
+		m = mqtt_new(host, MQTT_PORT, client_id); //´´½¨¶ÔÏó£¬MQTT_PORT = 1883
+		if ( m == NULL ) {
+			printf("mqtt client create failure, return  code = %d\n", errno);
+			//-return 1;
+		} else {
+			printf("mqtt client created\n");
+		}
     
-    mqtt_Pclient_connect();	//-Á¬½Ó·şÎñÆ÷
+    mqtt_Pclient_connect();	//-³ÖĞøÎ¬»¤ºÍ·şÎñÆ÷µÄÁ¬½Ó
     
-    mqtt_Sclient_receiver();	//-½ÓÊÕ¶©ÔÄ
+    //-mqtt_Sclient_receiver();	//-½ÓÊÕ¶©ÔÄ
     
     while(1){//-¼àÊÓÓĞÃ»ÓĞ¿Í»§¶ËÁ¬½Ó,Èç¹ûÓĞµÄ»°×¨ÃÅ´´Á¢Ò»¸ö¶ÀÁ¢´¦ÀíÏß³Ì
         //-±¾º¯Êı´ÓsµÄµÈ´ıÁ¬½Ó¶ÓÁĞÖĞ³éÈ¡µÚÒ»¸öÁ¬½Ó£¬´´½¨Ò»¸öÓësÍ¬ÀàµÄĞÂµÄÌ×½Ó¿Ú²¢·µ»Ø¾ä±ú¡£
@@ -338,7 +377,9 @@ int main(int argc, char *argv[])
         
     }
     
-    mqtt_publish_close();
+    //-ÏÂÃæÊÇºÍ·şÎñÆ÷¶Ï¿ªÁ¬½Ó,²¢ÇÒÇå³ıÎªÁËÁ¬½Ó¶ø½¨Á¢µÄÏµÁĞ»·¾³
+		mqtt_disconnect(m); //disconnect
+		mqtt_delete(m);  //delete mqtt client object
     
     return 0;
 }
@@ -451,7 +492,61 @@ static void *dbp_client_handler(void *arg)
     return NULL;
 }
 
-static void mqtt_Pclient_connect(int socket_fd)
+void *mqtt_Pclient_handler(void *arg)	//-Õâ¸öÏß³Ì´¦Àíº¯ÊıÒ»Ö±Î¬»¤ºÍ·şÎñÆ÷µÄÁ¬½Ó,Ö»Òª³ÌĞòÔÚÔËĞĞ¾ÍĞèÒªÁ¬½Ó
+{
+		int byte_count;
+    char buf[512];
+    char output[512];
+    int bytes_sent;
+    int index = *((int *) arg);
+    int ret; //·µ»ØÖµ
+    
+    
+    memset(buf, 0, sizeof(buf));
+    memset(output, 0, sizeof(output));
+    
+    /* receive data from client here */
+    while(1){
+    
+        if(mqtt_is_connected(m) == 0)
+        {
+        	if ( m == NULL ) 
+        	{
+        		//create new mqtt client object
+						m = mqtt_new(host, MQTT_PORT, client_id); //´´½¨¶ÔÏó£¬MQTT_PORT = 1883
+						if ( m == NULL ) {
+							printf("mqtt client create failure, return  code = %d\n", errno);
+							//-return 1;
+						} else {
+							printf("mqtt client created\n");
+						}
+        	}
+        	else
+        	{
+	        	//connect to server
+						ret = mqtt_connect(m, username, password); //Á¬½Ó·şÎñÆ÷,ÕâÀï²»½ö½öÓĞÓ²¼şÁ¬½Ó»¹ÓĞMQTTĞ­ÒéÁ¬½Ó
+						if (ret != MQTT_SUCCESS ) {
+							printf("mqtt client connect failure, return code = %d\n", ret);
+							usleep(100*1000);
+						} else {
+							printf("mqtt client connect\n");
+							
+							//-²¹³äÖ÷Ìâ
+							supplement_topic();
+						}
+						//-ÉÏÃæÒ»¸öÁ÷³Ì½ö½öÍê³ÉÁËÁ¬½ÓÇëÇó,Ğ­Òé²ãµÄÁ¬½Ó¿ÉÄÜÔÚÁíÍâÒ»¸öÏß³ÌÖĞÊµÏÖµÄ
+					}
+        }
+        	
+        
+    }
+    
+    pthread_exit(NULL);
+    
+    return NULL;
+}
+
+static void mqtt_Pclient_connect(void)
 {
 		pthread_t client_handler_thread;
         
@@ -478,13 +573,14 @@ static void mqtt_Pclient_connect(int socket_fd)
 
 }
 
+#if 0
 static void mqtt_Sclient_receiver(int socket_fd)
 {
 		pthread_t client_handler_thread;
         
     
     //-´´½¨Ïß³Ì thread¼ÇÂ¼ÁËÏß³ÌµÄIDºÅ attrÉèÖÃÏß³ÌÊôĞÔ fnÏß³ÌÖ´ĞĞµÄÖ÷º¯Êı ÔËĞĞº¯ÊıµÄ²ÎÊı
-    if(pthread_create(&client_handler_thread, NULL, &mqtt_Preceive_handler, NULL) != 0){
+    if(pthread_create(&client_handler_thread, NULL, &mqtt_Sreceive_handler, NULL) != 0){
         perror("Failed to create zigbee mqtt receiver thread");
         return;
     }
@@ -504,6 +600,7 @@ static void mqtt_Sclient_receiver(int socket_fd)
     pthread_detach(client_handler_thread);	//-½ö½öÎªÁËÖ÷Ïß³Ì²»×èÈû
 
 }
+#endif
 
 static void dbp_msg_receiver(int socket_fd)
 {
@@ -795,3 +892,27 @@ static int dbp_send_data_to_clients(char *data)	//-Êı¾İ¿â°ÑÊı¾İ·¢ËÍ¸ø¿Í»§¶ËÍ¨¹ıÌ
     
     return 0;
 }
+
+int dbp_send_data_to_clients_mqtt(char *buf,int data)
+{
+	int ret; //·µ»ØÖµ
+	int Qos; //Quality of Service
+	
+	if(topic_flags == 1)
+	{
+		//publish message
+		Qos = QOS_EXACTLY_ONCE; //Qos
+		strcat(topic,buf);
+		if ( m != NULL )
+			ret = mqtt_publish(m, topic, data, Qos);//·¢²¼ÏûÏ¢
+		printf("mqtt client publish,  return code = %d\n", ret);
+	}
+	else
+	{//-Ã»ÓĞºÏÊÊÖ÷Ìå³¢ÊÔ²¹³äÒ»´Î
+		supplement_topic();
+		printf("mqtt topic is bad\n");
+	}
+	
+}
+
+

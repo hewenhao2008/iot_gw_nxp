@@ -9,7 +9,7 @@ LDFLAGS += -lrt -lpthread
 
 TARGET = iot_ci
 
-INCLUDES = -I../../IotCommon
+INCLUDES = -I../../IotCommon -I../../IotCommon/mqtt
 OBJECTS = ci_main.o \
 	topo.o \
 	topoGen.o \
@@ -41,7 +41,27 @@ OBJECTS = ci_main.o \
 	../../IotCommon/socket.o \
 	../../IotCommon/dump.o \
 	../../IotCommon/iotTimer.o \
-	../../IotCommon/newLog.o
+	../../IotCommon/newLog.o \
+	../../IotCommon/mqtt/Clients.o \
+	../../IotCommon/mqtt/Heap.o \
+	../../IotCommon/mqtt/LinkedList.o \
+	../../IotCommon/mqtt/Log.o \
+	../../IotCommon/mqtt/Messages.o \
+	../../IotCommon/mqtt/MQTTClient.o \
+	../../IotCommon/mqtt/MQTTPacket.o \
+	../../IotCommon/mqtt/MQTTPacketOut.o \
+	../../IotCommon/mqtt/MQTTPersistence.o \
+	../../IotCommon/mqtt/MQTTPersistenceDefault.o \
+	../../IotCommon/mqtt/MQTTProtocolClient.o \
+	../../IotCommon/mqtt/MQTTProtocolOut.o \
+	../../IotCommon/mqtt/Socket.o \
+	../../IotCommon/mqtt/SocketBuffer.o \
+	../../IotCommon/mqtt/SSLSocket.o \
+	../../IotCommon/mqtt/StackTrace.o \
+	../../IotCommon/mqtt/Thread.o \
+	../../IotCommon/mqtt/Tree.o \
+	../../IotCommon/mqtt/utf-8.o \
+	../../IotCommon/mqtt/mqtt_client.o
 
 
 %.o: %.c $(HEADERS)
