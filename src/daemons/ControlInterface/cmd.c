@@ -78,7 +78,7 @@ void cmdInit( void ) {
 }
 
 #ifdef CMD_DEBUG
-static void cmdDump ( void ) {
+static void cmdDump ( void ) {//-命令的转存,其实就实现了打印命令表信息的作用
     printf( "Cmd dump:\n" );
     int i;
     for ( i=0; i<NUMINTATTRS; i++ ) {
@@ -109,7 +109,7 @@ int cmdHandle( void ) {
     char * strval;
     char * message = NULL;
 
-    if ( ( val = parsingGetIntAttr( "reset" ) ) >= 0 ) {
+    if ( ( val = parsingGetIntAttr( "reset" ) ) >= 0 ) {//-根据名称从表格中取出数值,这个值是刚刚传递过来的
         DEBUG_PRINTF( "Command reset, val = %d\n", val );
 
         queueWriteOneMessage( QUEUE_KEY_ZCB_IN, jsonCmdReset( val ) );

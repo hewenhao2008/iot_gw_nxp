@@ -466,7 +466,7 @@ int main( int argc, char * argv[] ) {
 		int ret; //返回值
 		//-char *host = "messagesight.demos.ibm.com:1883";//测试服务器
 		//-char *topic = "iot_td/ZigBee/HA/NXP/"; //主题
-		char host[80] = "messagesight.demos.ibm.com:1883";
+		char host[80] = "iot.eclipse.org:1883";
 		char topic[80] = "iot_td/ZigBee/HA/NXP/";
 		char *client_id = "clientid33883";//客户端ID； 对测试服务器，可以随便写
 		char *username = NULL;//用户名，用于验证身份。对测试服务器，无。
