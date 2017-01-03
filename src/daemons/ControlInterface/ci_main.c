@@ -54,7 +54,7 @@
 
 #define INPUTBUFFERLEN      200
 
-// #define MAIN_DEBUG
+ #define MAIN_DEBUG
 
 #ifdef MAIN_DEBUG
 #define DEBUG_PRINTF(...) printf(__VA_ARGS__)
@@ -90,14 +90,14 @@ int supplement_topic(char *buff)
 	uint16_t  shortAddress = 0;
 	//-route010203040506/dongle010203040506/cmd
 	//-coordinator0102030405060708/cmd
-	//-DEBUG_PRINTF( "Get node extended address for 0x%04x\n", (int)shortAddress );
+	DEBUG_PRINTF( "Get node extended address for 0x%04x\n", (int)shortAddress );
     
   newdb_zcb_t zcb;
   if ( newDbGetZcbSaddr( shortAddress, &zcb ) ) {
       strcat(buff,"Coordinator");  
 			strcat(buff,zcb.mac);
 			strcat(buff,"/cmd");
-			//-DEBUG_PRINTF( "sectional topic = %s\n", buff );
+			DEBUG_PRINTF( "sectional topic = %s\n", buff );
 			//-topic_flags = 1;
   }
 }
@@ -464,8 +464,10 @@ int main( int argc, char * argv[] ) {
     signed char opt;
     mqtt_client *m; //mqtt_client 对象指针
 		int ret; //返回值
-		char *host = "messagesight.demos.ibm.com:1883";//测试服务器
-		char *topic = "iot_td/ZigBee/HA/NXP/"; //主题
+		//-char *host = "messagesight.demos.ibm.com:1883";//测试服务器
+		//-char *topic = "iot_td/ZigBee/HA/NXP/"; //主题
+		char host[80] = "messagesight.demos.ibm.com:1883";
+		char topic[80] = "iot_td/ZigBee/HA/NXP/";
 		char *client_id = "clientid33883";//客户端ID； 对测试服务器，可以随便写
 		char *username = NULL;//用户名，用于验证身份。对测试服务器，无。
 		char *password = NULL;//密码，用于验证身份。对测试服务器，无。
@@ -490,6 +492,7 @@ int main( int argc, char * argv[] ) {
             exit(0);
         case 'H':
             strcpy( socketHost, optarg );
+            strcpy( host, optarg );
             break;
         case 'P':
             strcpy( socketPort, optarg );
