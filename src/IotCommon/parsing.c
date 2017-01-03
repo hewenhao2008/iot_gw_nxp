@@ -60,7 +60,7 @@ int isEmptyString( char * string ) {
  * \param name Name of the integer to parse
  * \returns The index in the array when found, or -1 when not found
  */
-static int parsingExistsIntAttr( char * name ) {
+static int parsingExistsIntAttr( char * name ) {//-判断解析队列中是否已经存在这样的整数
     int i;
     for ( i=0; i<numIntAttrs; i++ ) {
         if ( strcmp( parsingIntAttrs[i].name, name ) == 0 ) {
@@ -103,7 +103,7 @@ int parsingAddIntAttr( char * name ) {
     if ( parsingExistsIntAttr( name ) < 0 ) {
         if ( numIntAttrs < MAXINTATTRS ) {
             parsingIntAttrs[numIntAttrs].name = name;
-            numIntAttrs++;
+            numIntAttrs++;	//-记录解析队列中存在的个数
             return( 1 );
         } else {
             printf( "********** Error adding INT-attr %s\n", name );
@@ -180,7 +180,7 @@ int parsingIntAttr( char * name, int value ) {
  * \param value Value to be set
  * \returns 1 on success, or 0 on error
  */
-int parsingStringAttr( char * name, char * value ) {
+int parsingStringAttr( char * name, char * value ) {//-根据名字赋值
     int i;
     for ( i=0; i<numStringAttrs; i++ ) {
         if ( strcmp( parsingStringAttrs[i].name, name ) == 0 ) {
@@ -206,7 +206,7 @@ int parsingStringAttr( char * name, char * value ) {
  * \param name Name of the integer
  * \return The value for the integer or INT_MIN when the integer was not found/parsed
  */
-int parsingGetIntAttr( char * name ) {
+int parsingGetIntAttr( char * name ) {//-根据名字得到整数值
     int i;
     for ( i=0; i<numIntAttrs; i++ ) {
         if ( strcmp( parsingIntAttrs[i].name, name ) == 0 ) {
