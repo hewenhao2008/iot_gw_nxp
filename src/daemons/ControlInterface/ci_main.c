@@ -286,7 +286,7 @@ static void ci_onArrayComplete(char * name) {
 
 static void ci_onString(char * name, char * value) {
     DEBUG_PRINTF("onString( %s, %s )\n", name, value);
-    parsingStringAttr( name, value );
+    parsingStringAttr( name, value );	//-根据接收到的内容设值
 }
 
 static void ci_onInteger(char * name, int value) {

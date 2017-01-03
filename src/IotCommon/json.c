@@ -177,23 +177,23 @@ static int isWhiteSpace(char c) {//-是空的就返回1
     return ( (c == ' ') || (c == '\r') || (c == '\n') || (c == '\t') );
 }
 
-static int isSign(char c) {
+static int isSign(char c) {//-是-或+就返回1
     return ( (c == '-') || (c == '+') );
 }
 
-static int isNum(char c) {
+static int isNum(char c) {//-是数字返回1
     return ( (c >= '0') && (c <= '9') );
 }
 
-static int isAlpha(char c) {
+static int isAlpha(char c) {//-是26个字母之一,返回1
     return ( ((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z')) );
 }
 
-static int isValidNameChar(char c) {
+static int isValidNameChar(char c) {//-判断是否是有效名称字符,是返回1
     return ( isAlpha(c) || isNum(c) || (c == '_' ) || (c == '+') );
 }
 
-static void appendName(char c) {
+static void appendName(char c) {//-在名称中增加一个字符
     int len = strlen(parser->name[parser->stack]);
     if (len < MAXNAME) {
         parser->name[parser->stack][len] = c;
@@ -204,7 +204,7 @@ static void appendName(char c) {
     }
 }
 
-static void appendValue(char c) {
+static void appendValue(char c) {//-增加一个有效值字符
     int len = strlen(parser->value[parser->stack]);
     if (len < MAXVALUE) {
         parser->value[parser->stack][len] = c;
@@ -215,7 +215,7 @@ static void appendValue(char c) {
     }
 }
 
-static void setState(int st) {
+static void setState(int st) {//-在准备某些状况之前进行必要初始化
     // printf("Set state %d\n", st);
     parser->state = st;	//-主动设置状态
 
@@ -242,9 +242,9 @@ static void setState(int st) {
 
 static void toState(int st) {
     // printf("To state %d\n", st);
-    parser->states[parser->stateIndex] = parser->state;
+    parser->states[parser->stateIndex] = parser->state;	//-先记录当前的状态
     if (++parser->stateIndex < MAXSTATES) {
-        setState(st);
+        setState(st);	//-再设置最新状态
     } else {
         jsonError(ERR_INTERNAL);
     }
@@ -253,7 +253,7 @@ static void toState(int st) {
 static void upState(void) {
     // printf("Up state\n");
     if (parser->stateIndex > 0) {
-        parser->state = parser->states[--(parser->stateIndex)];
+        parser->state = parser->states[--(parser->stateIndex)];	//-取前一个状态
         if (parser->state == STATE_INOBJECT || parser->state == STATE_INARRAY) {
             if (parser->stack > 0) {
                 parser->stack--;
@@ -283,7 +283,7 @@ static void jsonEatNoLog(char c) {//-这个里面完整的解析了数据,然后根据不同的定义
     switch (parser->state) {
         case STATE_NONE:
             if (c == '{') {//-遇到这个字符就进行下面的处理,一套流程就实现了JSON解析
-                if (parser->onObjectStart != NULL) parser->onObjectStart(parser->name[parser->stack]);
+                if (parser->onObjectStart != NULL) parser->onObjectStart(parser->name[parser->stack]);	//-对可能的解析数值赋初值
                 toState(STATE_INOBJECT);
                 toState(STATE_TONAME);
                 parser->allowComma = 0;
@@ -313,7 +313,7 @@ static void jsonEatNoLog(char c) {//-这个里面完整的解析了数据,然后根据不同的定义
 
         case STATE_TONAME:
             if (c == '"') {
-                setState(STATE_INNAME);
+                setState(STATE_INNAME);	//-说明即将输入的是名称
             } else if (!isWhiteSpace(c)) {
                 jsonError(ERR_PARSE_NAME);
             }
@@ -321,7 +321,7 @@ static void jsonEatNoLog(char c) {//-这个里面完整的解析了数据,然后根据不同的定义
 
         case STATE_INNAME:
             if (c == '"') {
-                setState(STATE_TOCOLUMN);
+                setState(STATE_TOCOLUMN);	//-切换到了下一个等待的状态
             } else if (isValidNameChar(c)) {
                 appendName(c);
             } else {
@@ -329,10 +329,10 @@ static void jsonEatNoLog(char c) {//-这个里面完整的解析了数据,然后根据不同的定义
             }
             break;
 
-        case STATE_TOCOLUMN:
+        case STATE_TOCOLUMN:	//-期待输入:字符
             if (c == ':') {
                 setState(STATE_TOVALUE);
-            } else if (!isWhiteSpace(c)) {
+            } else if (!isWhiteSpace(c)) {	//-如果输入的不是空字符,就是错误格式,没有必要继续解析了
                 jsonError(ERR_PARSE_ASSIGNMENT);
             }
             break;
@@ -358,7 +358,7 @@ static void jsonEatNoLog(char c) {//-这个里面完整的解析了数据,然后根据不同的定义
             break;
 
         case STATE_INSTRING:
-            if (!parser->isSlash && c == '\\') {
+            if (!parser->isSlash && c == '\\') {	//-判断斜线
                 parser->isSlash = 1;
             } else if (parser->isSlash) {
                 parser->isSlash = 0;
@@ -369,7 +369,7 @@ static void jsonEatNoLog(char c) {//-这个里面完整的解析了数据,然后根据不同的定义
                 if (parser->onString != NULL) parser->onString(parser->name[parser->stack], parser->value[parser->stack]);
                 setState(STATE_OUTVALUE);
             } else {
-                appendValue(c);
+                appendValue(c);	//-增加有效值
             }
             break;
 
@@ -409,7 +409,7 @@ static void jsonEatNoLog(char c) {//-这个里面完整的解析了数据,然后根据不同的定义
                     toState(STATE_TONAME);
                 } else {
                     upState();
-                    again = 1;
+                    again = 1;	//-表示不读字符了,直接再来一次解析
                 }
             }
             break;
