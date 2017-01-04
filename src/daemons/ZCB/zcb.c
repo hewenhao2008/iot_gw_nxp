@@ -90,7 +90,7 @@ static void ZCB_HandleLog                       (void *pvUser, uint16_t u16Lengt
  * @param extendedAddress
  * @return 1 if a new node is created, 0 else
  */
-int zcbAddNode( uint16_t  shortAddress, uint64_t extendedAddress ) {//-µ±ÏÂÃæÓĞ»áËµÃ÷¶ËµãÏûÏ¢ÉÏÀ´,È»ºó´¥·¢¸üĞÂÊı¾İ¿â
+int zcbAddNode( uint16_t  shortAddress, uint64_t extendedAddress ) {//-µ±Ò»¸öĞÂµÄ¶Ëµã¼ÓÈëÍøÂçµÄÊ±ºò¸üĞÂÊı¾İ¿â
     DEBUG_PRINTF( "Add node 0x%04x, 0x%016llx\n",
             (int)shortAddress, (long long unsigned int)extendedAddress );
     int iReturn = 1;
@@ -98,12 +98,12 @@ int zcbAddNode( uint16_t  shortAddress, uint64_t extendedAddress ) {//-µ±ÏÂÃæÓĞ»
     u642nibblestr( extendedAddress, mac );
     
     newdb_zcb_t zcb;
-    if ( newDbGetZcbSaddr( shortAddress, &zcb ) ) {//-Èç¹û´æÔÚÕâÑùµÄ¶ÌµØÖ·¾Í¸üĞÂÒ»´ÎmacµØÖ·
+    if ( newDbGetZcbSaddr( shortAddress, &zcb ) ) {//-Èç¹û´æÔÚÕâÑùµÄ¶ÌµØÖ·¾Í¸üĞÂÒ»´ÎmacµØÖ·,ÔÚÒ»¸ö¾ÖÓòÍøÂçÖĞ¶ÌµØÖ·Ò²ÊÇÎ¨Ò»µÄ
         zcb.status = ZCB_STATUS_JOINED;
         strcpy( zcb.mac, mac );
         newDbSetZcb( &zcb );
         
-    } else if ( newDbGetZcb( mac, &zcb ) ) {//-Èç¹û´æÔÚÕâÑùµÄmacµØÖ·¾Í¸üĞÂÒ»´Î¶ÌµØÖ·
+    } else if ( newDbGetZcb( mac, &zcb ) ) {//-Èç¹û´æÔÚÕâÑùµÄmacµØÖ·¾Í¸üĞÂÒ»´Î¶ÌµØÖ·,ÔÚÕû¸öÍøÂçÖĞmacµØÖ·ÊÇÎ¨Ò»µÄ
         zcb.status = ZCB_STATUS_JOINED;
         zcb.saddr  = shortAddress;
         newDbSetZcb( &zcb );
@@ -160,7 +160,7 @@ int zcbNodeLeft( uint64_t extendedAddress, int keep ) {
     return 0;
 }
 
-int zcbNodeSetDeviceID( uint16_t shortAddress, uint16_t deviceID ) {
+int zcbNodeSetDeviceID( uint16_t shortAddress, uint16_t deviceID ) {//-ÆäÊµ¾ÍÊÇÏòÊı¾İ¿âÖĞ¼ÌĞøÌîĞ´ĞèÒªµÄÊı¾İ
     DEBUG_PRINTF( "Set DeviceID 0x%04x to node 0x%04x\n",
             (int)deviceID, (int)shortAddress );
     
@@ -1196,7 +1196,7 @@ static void ZCB_HandleNodeCommandIDList(void *pvUser, uint16_t u16Length, void *
 #endif
 }
 
-
+//-Node->Host,µ±dongle½ÓÊÕµ½¸´Î»ÃüÁîÖ®ºó¾Í»áÖ÷¶¯·¢ËÍÕâ¸öÏûÏ¢,ÄÇÃ´Êı¾İ¿âÖĞ¾ÍÓĞÁËdongleµÄĞÅÏ¢,¶øÃ¿´ÎÁ¬½Ódongle¶¼»áÊ×ÏÈ¸´Î»ÏÂ
 static void ZCB_HandleNetworkJoined(void *pvUser, uint16_t u16Length, void *pvMessage) {//-¼ÓÈëÍøÂç»ò½¨Á¢ÍøÂçµÄ´¦Àí
     DEBUG_PRINTF( "\n************ ZCB_HandleNetworkJoined\n" );
 
@@ -1219,15 +1219,15 @@ static void ZCB_HandleNetworkJoined(void *pvUser, uint16_t u16Length, void *pvMe
     psMessageShort->u16ShortAddress = ntohs(psMessageShort->u16ShortAddress);
     psMessageShort->u64IEEEAddress  = be64toh(psMessageShort->u64IEEEAddress);	//-´Ó½ÓÊÕµ½µÄÏûÏ¢ÖĞ»ñÈ¡ĞÅÏ¢
 
-    zcbAddNode( psMessageShort->u16ShortAddress, psMessageShort->u64IEEEAddress );
+    zcbAddNode( psMessageShort->u16ShortAddress, psMessageShort->u64IEEEAddress );	//-Ã¿¸öÉè±¸ÓÃÒ»¸özcb¼ÇÂ¼
     
     char  ePanId[16+2];
     if ( psMessageShort->u16ShortAddress == 0x0000 ) {
         // Coordinator
         u642nibblestr( psMessageShort->u64IEEEAddress, ePanId );
-        newDbSystemSaveStringval( "zcb_extpanid", ePanId );
-        zcbNodeSetDeviceID( psMessageShort->u16ShortAddress, SIMPLE_DESCR_GATEWAY );
-        eZCB_AddGroupMembership( 0x0000, 0x0AA1 );
+        newDbSystemSaveStringval( "zcb_extpanid", ePanId );	//-ÔÚÊı¾İ¿âÖĞÌØ±ğ¼ÇÂ¼ÏÂĞ­µ÷Æ÷µÄĞÅÏ¢,¼õÉÙÁË²é¿â
+        zcbNodeSetDeviceID( psMessageShort->u16ShortAddress, SIMPLE_DESCR_GATEWAY );	//-ÓÉÓÚÈ·ÈÏÊÇĞ­µ÷Æ÷,ËùÒÔĞèÒªÌîĞ´ÕâÑùµÄÉè±¸ÀàĞÍ,ÔÚÊı¾İ¿âÖĞ
+        eZCB_AddGroupMembership( 0x0000, 0x0AA1 );	//-Õâ¸öÊÇ·Åµ½Ê²Ã´×éÀïÃæÁË,ÔÚÃ»ÓĞÓÃµ½Ö®Ç°ÊÇÃ»ÓĞÓ°ÏìµÄ
     }
     
     if (u16Length == sizeof(struct _tsNetworkJoinedFormedExtended)) {
@@ -1258,7 +1258,7 @@ static void ZCB_HandleNetworkJoined(void *pvUser, uint16_t u16Length, void *pvMe
 
 
 
-static void ZCB_HandleDeviceAnnounce(void *pvUser, uint16_t u16Length, void *pvMessage) {//-ÖÕ¶ËÉè±¸·¢ËÍµÄÍ¨¸æ
+static void ZCB_HandleDeviceAnnounce(void *pvUser, uint16_t u16Length, void *pvMessage) {//-ÖÕ¶ËÉè±¸·¢ËÍµÄÍ¨¸æ,Ò»¸öÖÕ¶ËÉè±¸¼ÓÍøºó¾Í»áÖ÷¶¯ÉêÃ÷²»¹ÜÊÇµÚÒ»»¹ÊÇÖØĞÂÉÏµç
     DEBUG_PRINTF( "\n************ ZCB_HandleDeviceAnnounce\n" );
 
     struct _tsDeviceAnnounce {

@@ -78,15 +78,15 @@ typedef struct newdb {
     
     int reserve[11];
 
-    newdb_system_t system[NEWDB_MAX_SYSTEM];
+    newdb_system_t system[NEWDB_MAX_SYSTEM];	//-记录一个系统中的特殊信息,比如协调器:extpanid,panid,channel
     
 //    newdb_room_t rooms[NEWDB_MAX_ROOMS];
     
-    newdb_dev_t devices[NEWDB_MAX_DEVICES];
-    
+    newdb_dev_t devices[NEWDB_MAX_DEVICES];	//-是下面zcb的一种延伸,甚至一个zcb设备可以延伸出几个这里的设备,他是zcb的子集,存在某种应用联系,相当于一个二级属性
+    																				//-比如这里就把zcb简单的记录,具体了很多属性信息,以便保存更多属性值
     newdb_plughist_t plughist[NEWDB_MAX_PLUGHIST];
     
-    newdb_zcb_t zcb[NEWDB_MAX_ZCB];
+    newdb_zcb_t zcb[NEWDB_MAX_ZCB];	//-记录最基本的设备信息(dongle,终端等),上面很多可能是在这个基础上提炼,或特殊化的信息
     
 } newdb_t;
 
