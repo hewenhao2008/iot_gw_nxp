@@ -54,6 +54,10 @@ firstName=Brett
 从语法方面来看，这与"名称 / 值对"相比并没有很大的优势，但是在这种情况下 JSON 更容易使用，而且可读性更好。例如，它明
 确地表示以上三个值都是同一记录的一部分；花括号使这些值有了某种联系。
 
+此处实际操作流程:
+首先在各自的程序中建立一个名称数组,表示可以接收的命令.其实就是解析器,这个每次准备处理一条新指令前都需要复位下.
+然后对输入的字符串进行解析,把获取的最新数值填写到对应的名称后面.
+最后把结果输出.这个结果不是直接来自输入语句的,而是在解析器中查找的.
 */ 
 
 #include <stdio.h>
@@ -65,7 +69,7 @@ firstName=Brett
 
 #define MAXPARSERS           2
 
-#define MAXSTATES            10
+#define MAXSTATES            10			//-可能表示一次解析的最大深度,连续状态最大为10
 #define MAXSTACK             5
 #define MAXERRORBUFFER       20
 
@@ -73,7 +77,7 @@ firstName=Brett
 #define MAXVALUE             160   // was 80
 
 #define STATE_NONE           0
-#define STATE_INOBJECT       1
+#define STATE_INOBJECT       1			//-准备接收一个目标之前都需要开辟一个新的堆栈层,准备记录新的对象信息
 #define STATE_TONAME         2
 #define STATE_INNAME         3
 #define STATE_TOCOLUMN       4
@@ -219,19 +223,19 @@ static void setState(int st) {//-在准备某些状况之前进行必要初始化
     // printf("Set state %d\n", st);
     parser->state = st;	//-主动设置状态
 
-    switch (parser->state) {
+    switch (parser->state) {//-根据最新的状态,在输入字符之前进行必要的初始化
         case STATE_INNAME:
             // printf( "Reset name\n" );
             parser->name[parser->stack][0] = '\0';
             break;
         case STATE_TOVALUE:
             // printf( "Reset value\n" );
-            parser->value[parser->stack][0] = '\0';
+            parser->value[parser->stack][0] = '\0';	//-在接收数据之前初始化空间
             break;
         case STATE_INOBJECT:
         case STATE_INARRAY:
             // printf("Push name '%s'\n", parser->name[parser->stack]);
-            if (++parser->stack < MAXSTACK) {
+            if (++parser->stack < MAXSTACK) {//-记录信息使用了堆栈的概念,这里就是便宜了一个,为记录名字准备
                 parser->name[parser->stack][0] = '\0';
             } else {
                 jsonError(ERR_INTERNAL);
@@ -240,9 +244,9 @@ static void setState(int st) {//-在准备某些状况之前进行必要初始化
     }
 }
 
-static void toState(int st) {
+static void toState(int st) {//-这个就是压栈函数
     // printf("To state %d\n", st);
-    parser->states[parser->stateIndex] = parser->state;	//-先记录当前的状态
+    parser->states[parser->stateIndex] = parser->state;	//-先记录当前的状态,然后切换状态
     if (++parser->stateIndex < MAXSTATES) {
         setState(st);	//-再设置最新状态
     } else {
@@ -250,7 +254,7 @@ static void toState(int st) {
     }
 }
 
-static void upState(void) {
+static void upState(void) {//-前面有进栈,这里是出栈,出栈应该是已经解析出了完整的信息,现在可以执行命令了
     // printf("Up state\n");
     if (parser->stateIndex > 0) {
         parser->state = parser->states[--(parser->stateIndex)];	//-取前一个状态
@@ -276,11 +280,11 @@ static void upState(void) {
 // -------------------------------------------------------------
 
 static void jsonEatNoLog(char c) {//-这个里面完整的解析了数据,然后根据不同的定义调用不同的处理函数,这样就完成了命令的接收和应答
-    int again = 0;
+    int again = 0;	//-不读入字符的情况下,在进入一次
 
     // int prevstate = parser->state;
 
-    switch (parser->state) {
+    switch (parser->state) {//-记录解析器当前的状态
         case STATE_NONE:
             if (c == '{') {//-遇到这个字符就进行下面的处理,一套流程就实现了JSON解析
                 if (parser->onObjectStart != NULL) parser->onObjectStart(parser->name[parser->stack]);	//-对可能的解析数值赋初值
@@ -320,10 +324,10 @@ static void jsonEatNoLog(char c) {//-这个里面完整的解析了数据,然后根据不同的定义
             break;
 
         case STATE_INNAME:
-            if (c == '"') {
+            if (c == '"') {//-遇到这结束记录,否则就是错误语法
                 setState(STATE_TOCOLUMN);	//-切换到了下一个等待的状态
             } else if (isValidNameChar(c)) {
-                appendName(c);
+                appendName(c);	//-在确定的栈层记录完整的名字信息
             } else {
                 jsonError(ERR_PARSE_ILLNAME);
             }
@@ -331,7 +335,7 @@ static void jsonEatNoLog(char c) {//-这个里面完整的解析了数据,然后根据不同的定义
 
         case STATE_TOCOLUMN:	//-期待输入:字符
             if (c == ':') {
-                setState(STATE_TOVALUE);
+                setState(STATE_TOVALUE);	//-说明下面接收到的字符串是数值意义的
             } else if (!isWhiteSpace(c)) {	//-如果输入的不是空字符,就是错误格式,没有必要继续解析了
                 jsonError(ERR_PARSE_ASSIGNMENT);
             }
@@ -341,15 +345,15 @@ static void jsonEatNoLog(char c) {//-这个里面完整的解析了数据,然后根据不同的定义
             if (c == '"') {
                 parser->isSlash = 0;
                 setState(STATE_INSTRING);
-            } else if (isNum(c) || isSign(c)) {
-                appendValue(c);
+            } else if (isNum(c) || isSign(c)) {//-判断是否是数字,即使是也是字符形式的,不是整型数
+                appendValue(c);	//-在堆栈层增加一个数字
                 setState(STATE_INNUM);
             } else if (c == '[') {
                 if (parser->onArrayStart != NULL) parser->onArrayStart(parser->name[parser->stack]);
                 setState(STATE_INARRAY);
                 toState(STATE_TONAME);
-            } else if (c == '{') {
-                if (parser->onObjectStart != NULL) parser->onObjectStart(parser->name[parser->stack]);
+            } else if (c == '{') {//-说明数值里面可能是目标套目标
+                if (parser->onObjectStart != NULL) parser->onObjectStart(parser->name[parser->stack]);	//-在一个新目标开始之前,把当前堆栈层的名字输出
                 setState(STATE_INOBJECT);
                 toState(STATE_TONAME);
             } else if (!isWhiteSpace(c)) {
@@ -380,7 +384,7 @@ static void jsonEatNoLog(char c) {//-这个里面完整的解析了数据,然后根据不同的定义
                 // printf( "-------> onInteger( Name='%s', value='%s' )\n", parser->name[parser->stack], parser->value[parser->stack] );
                 if (parser->onInteger != NULL) {
                      parser->onInteger( parser->name[parser->stack],
-                                        Atoi( parser->value[parser->stack] ) );
+                                        Atoi( parser->value[parser->stack] ) );	//-如果定义了整形有效值,就把解析出来的数据进行填写
                 }
                 setState(STATE_OUTVALUE);
                 again = 1;
@@ -435,9 +439,9 @@ static void jsonEatNoLog(char c) {//-这个里面完整的解析了数据,然后根据不同的定义
 void jsonReset(void) {
     parser->allowComma      = 0;
     parser->isSlash         = 0;
-    parser->state           = STATE_NONE;
-    parser->stateIndex      = 0;
-    parser->stack           = 0;
+    parser->state           = STATE_NONE;	//-记录了当前等待的状态
+    parser->stateIndex      = 0;	//-这个也是堆栈使用的,下面是堆栈有效值得偏移量,这个是压栈状态偏移,防错处理,其实是配套的
+    parser->stack           = 0;	//-堆栈记录的是一个需要处理的对象或数组,等待解析完成之后开始一个个出栈处理
     parser->name[parser->stack][0]  = '\0';
     parser->value[parser->stack][0] = '\0';
     parser->errbufIndex     = 0;

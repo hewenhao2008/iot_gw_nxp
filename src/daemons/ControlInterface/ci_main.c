@@ -204,7 +204,7 @@ static void ci_onError(int error, char * errtext, char * lastchars) {
 
 static void ci_onObjectStart(char * name) {
     DEBUG_PRINTF("onObjectStart( %s )\n", name);
-    parsingReset();
+    parsingReset();	//-每次开始解析一个新的输入语句之前都需要服务下解析器,把前面的数据抹掉
 }
 
 static void ci_onObjectComplete(char * name) {

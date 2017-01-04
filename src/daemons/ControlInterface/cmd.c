@@ -67,7 +67,7 @@ static int    stringMaxlens[NUMSTRINGATTRS] = { 8, 16, 38 };
  * \brief Init the JSON Parser for this type of commands
  */
 
-void cmdInit( void ) {
+void cmdInit( void ) {//-把支持的名称名字增加到解析队列中
     int i;
     for ( i=0; i<NUMINTATTRS; i++ ) {
         parsingAddIntAttr( intAttrs[i] );

@@ -162,7 +162,7 @@ void parsingReset( void ) {//-复位解析器
  * \param value Value to be set
  * \returns 1 on success, or 0 on error
  */
-int parsingIntAttr( char * name, int value ) {
+int parsingIntAttr( char * name, int value ) {//-通过解析输入的语句得到了一个数值,把获得的数值填写到对应的名称下面
     int i;
     for ( i=0; i<numIntAttrs; i++ ) {
         if ( strcmp( parsingIntAttrs[i].name, name ) == 0 ) {
