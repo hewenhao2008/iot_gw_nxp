@@ -428,7 +428,7 @@ int gwConfigEditOption( char * filename, char * section, char * option, char * s
             ret = 1;
             while ( ret && fgets( line, 200, fp_in ) != NULL ) {
                 DEBUG_PRINTF( "Line: %s", line );
-                
+                //-从读出的文件内容中寻找到需要的内容
                 if ( ( s = strstr( line, "config" ) ) != NULL ) {
                     // Check occurance of section name
                     if ( strstr( s, section ) != NULL ) {
@@ -445,10 +445,10 @@ int gwConfigEditOption( char * filename, char * section, char * option, char * s
                             found = 1;
                             s += strlen( option );
                             while ( *s == ' ' || *s == '\t' ) s++;
-                            sprintf( s, "%s\n", strval );
+                            sprintf( s, "%s\n", strval );	//-代替原来的内容,写入新部分
                         }
                     }
-                } else {
+                } else {//-没有找到的处理
                     // If empty line, then leave section
                     s = line;
                     while ( *s == ' ' || *s == '\t' || *s == '\n' ) s++;

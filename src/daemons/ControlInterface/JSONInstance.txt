@@ -1,0 +1,401 @@
+//-这里是JSON的应用实例,可以实现的语句
+
+//-擦出PDM 恢复出厂设置
+{"cmd": {"reset":0}}
+Raw Data
+10:41:15.835 -> 01 02 10 12 02 10 02 10 12 03 
+10:41:15.934 <- 01 80 00 00 04 96 00 00 00 12 03
+10:41:15.951 <- 01 80 03 00 1D 98 01 01 04 00 00 00 01 00 03 00 04 00 05 00 06 00 08 00 19 01 01 10 00 03 00 02 01 02 04 03
+10:41:15.996 <- 01 80 03 00 17 90 01 01 04 04 05 05 00 04 00 04 02 04 03 04 05 04 06 07 02 0B 03 0B 04 03
+10:41:16.022 <- 01 80 03 00 05 0A 02 C0 5E 10 00 03
+10:41:16.031 <- 01 80 04 00 0E 8E 01 01 04 00 00 00 00 00 01 00 02 00 03 00 03
+10:41:16.047 <- 01 80 05 00 06 87 01 01 04 00 00 00 03
+10:41:16.058 <- 01 80 04 00 06 87 01 01 04 00 01 00 03
+10:41:16.072 <- 01 80 05 00 08 C9 01 01 04 00 01 00 01 40 03
+10:41:16.088 <- 01 80 04 00 06 85 01 01 04 00 03 00 03
+10:41:16.104 <- 01 80 05 00 0B 88 01 01 04 00 03 00 01 02 03 04 05 03
+10:41:16.127 <- 01 80 04 00 0B 8C 01 01 04 00 04 00 00 00 01 00 02 03
+10:41:16.149 <- 01 80 05 00 0F CE 01 01 04 00 04 00 01 02 03 04 05 06 40 41 42 03
+10:41:16.185 <- 01 80 04 00 09 CC 01 01 04 00 05 00 00 40 00 03
+10:41:16.226 <- 01 80 05 00 0B CF 01 01 04 00 05 00 01 02 40 41 42 03
+10:41:16.257 <- 01 80 04 00 09 8E 01 01 04 00 06 00 00 00 01 03
+10:41:16.284 <- 01 80 05 00 0E 81 01 01 04 00 06 00 01 02 03 04 05 06 07 08 03
+10:41:16.325 <- 01 80 04 00 25 B7 01 01 04 00 08 00 00 00 01 00 02 00 07 00 08 00 10 00 11 00 12 00 13 00 15 00 16 00 17 00 19 00 1A 00 20 00 21 03
+10:41:16.398 <- 01 80 05 00 1A 9D 01 01 04 00 08 00 01 02 03 04 05 06 07 08 09 0A 40 41 42 43 44 47 4B 4C FE FF 03
+10:41:16.482 <- 01 80 04 00 0C 92 01 01 04 00 19 00 00 00 03 00 04 00 03
+10:41:16.523 <- 01 80 05 00 06 9E 01 01 04 00 19 00 03
+10:41:16.554 <- 01 80 04 00 09 88 01 01 04 01 01 00 00 00 01 03
+10:41:16.589 <- 01 80 05 00 06 87 01 01 04 01 01 00 03
+10:41:16.623 <- 01 80 04 00 07 B7 01 01 04 10 00 00 20 03
+10:41:16.659 <- 01 80 05 00 06 97 01 01 04 10 00 00 03
+10:41:16.693 <- 01 80 04 00 0A 88 01 01 04 03 00 00 00 00 01 00 03
+10:41:16.738 <- 01 80 05 00 06 84 01 01 04 03 00 00 03
+10:41:16.774 <- 01 80 04 00 08 8B 01 01 04 02 01 00 00 00 03
+10:41:16.817 <- 01 80 05 00 06 84 01 01 04 02 01 00 03
+10:41:16.856 <- 01 80 04 00 0B 8C 01 01 04 02 04 00 00 03 00 03 01 03
+10:41:16.906 <- 01 80 05 00 06 81 01 01 04 02 04 00 03
+10:41:16.946 <- 01 80 05 00 15 49 02 C0 5E 10 00 00 01 02 03 06 07 10 11 12 13 14 15 16 40 41 42 03
+10:41:17.049 <- 01 80 07 00 01 85 03 03
+10:41:17.069 <- 01 80 01 00 20 BE 06 53 74 61 63 6B 20 6C 6F 77 20 77 61 74 65 72 20 6D 61 72 6B 20 3D 20 30 34 30 30 36 36 39 63 03
+10:41:17.130 <- 01 80 01 00 1B B1 06 2A 2A 20 43 6F 6E 74 72 6F 6C 20 42 72 69 64 67 65 20 52 65 73 65 74 2A 2A 20 03
+Receive Message View
+Type: 0x8000 (Status)
+  Length: 4
+  Status: 0x00 (Success)
+  SQN: 0x00
+  Message: 
+Type: 0x8003 (Cluster List - Entries: 13)
+  Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)  Cluster ID: 0x0000 (General: Basic)
+  Cluster ID: 0x0001 (General: Power Config)
+  Cluster ID: 0x0003 (General: Identify)
+  Cluster ID: 0x0004 (General: Groups)
+  Cluster ID: 0x0005 (General: Scenes)
+  Cluster ID: 0x0006 (General: On/Off)
+  Cluster ID: 0x0008 (General: Level Control)
+  Cluster ID: 0x0019 (General: OTA)
+  Cluster ID: 0x0101 (General: Door Lock
+  Cluster ID: 0x1000 (ZLL: Commissioning)
+  Cluster ID: 0x0300 (Lighting: Color Control)
+  Cluster ID: 0x0201 (Unknown)
+  Cluster ID: 0x0204 (Unknown)
+Type: 0x8003 (Cluster List - Entries: 10)
+  Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)  Cluster ID: 0x0405 (Unknown)
+  Cluster ID: 0x0500 (Security & Safety: IAS Zone)
+  Cluster ID: 0x0400 (Measurement: Illuminance)
+  Cluster ID: 0x0402 (Measurement: Temperature)
+  Cluster ID: 0x0403 (Unknown)
+  Cluster ID: 0x0405 (Unknown)
+  Cluster ID: 0x0406 (Measurement: Occupancy Sensing)
+  Cluster ID: 0x0702 (Smart Energy: Metering)
+  Cluster ID: 0x0B03 (Unknown)
+  Cluster ID: 0x0B04 (Unknown)
+Type: 0x8003 (Cluster List - Entries: 1)
+  Source EndPoint: 0x02
+  Profile ID: 0xC05E (ZigBee LL)  Cluster ID: 0x1000 (ZLL: Commissioning)
+Type: 0x8004 (Cluster Attributes - Entries: 4)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x0000 (General: Basic)
+ Attribute ID: 0x0000
+ Attribute ID: 0x0001
+ Attribute ID: 0x0002
+ Attribute ID: 0x0003
+ Attribute ID: 0x0005
+Type: 0x8005 (Command IDs - Entries: 1)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x0000 (General: Basic)
+ Command ID: 0x00
+Type: 0x8004 (Cluster Attributes - Entries: 0)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x0001 (General: Power Config)
+ Attribute ID: 0x0000
+Type: 0x8005 (Command IDs - Entries: 3)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x0001 (General: Power Config)
+ Command ID: 0x00
+ Command ID: 0x01
+ Command ID: 0x40
+Type: 0x8004 (Cluster Attributes - Entries: 0)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x0003 (General: Identify)
+ Attribute ID: 0x0001
+Type: 0x8005 (Command IDs - Entries: 6)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x0003 (General: Identify)
+ Command ID: 0x00
+ Command ID: 0x01
+ Command ID: 0x02
+ Command ID: 0x03
+ Command ID: 0x04
+ Command ID: 0x05
+Type: 0x8004 (Cluster Attributes - Entries: 3)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x0004 (General: Groups)
+ Attribute ID: 0x0000
+ Attribute ID: 0x0001
+ Attribute ID: 0x0002
+Type: 0x8005 (Command IDs - Entries: 10)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x0004 (General: Groups)
+ Command ID: 0x00
+ Command ID: 0x01
+ Command ID: 0x02
+ Command ID: 0x03
+ Command ID: 0x04
+ Command ID: 0x05
+ Command ID: 0x06
+ Command ID: 0x40
+ Command ID: 0x41
+ Command ID: 0x42
+Type: 0x8004 (Cluster Attributes - Entries: 2)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x0005 (General: Scenes)
+ Attribute ID: 0x0000
+ Attribute ID: 0x4000
+Type: 0x8005 (Command IDs - Entries: 6)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x0005 (General: Scenes)
+ Command ID: 0x00
+ Command ID: 0x01
+ Command ID: 0x02
+ Command ID: 0x40
+ Command ID: 0x41
+ Command ID: 0x42
+Type: 0x8004 (Cluster Attributes - Entries: 2)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x0006 (General: On/Off)
+ Attribute ID: 0x0000
+ Attribute ID: 0x0001
+Type: 0x8005 (Command IDs - Entries: 9)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x0006 (General: On/Off)
+ Command ID: 0x00
+ Command ID: 0x01
+ Command ID: 0x02
+ Command ID: 0x03
+ Command ID: 0x04
+ Command ID: 0x05
+ Command ID: 0x06
+ Command ID: 0x07
+ Command ID: 0x08
+Type: 0x8004 (Cluster Attributes - Entries: 16)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x0008 (General: Level Control)
+ Attribute ID: 0x0000
+ Attribute ID: 0x0001
+ Attribute ID: 0x0002
+ Attribute ID: 0x0007
+ Attribute ID: 0x0008
+ Attribute ID: 0x0010
+ Attribute ID: 0x0011
+ Attribute ID: 0x0012
+ Attribute ID: 0x0013
+ Attribute ID: 0x0015
+ Attribute ID: 0x0016
+ Attribute ID: 0x0017
+ Attribute ID: 0x0019
+ Attribute ID: 0x001A
+ Attribute ID: 0x0020
+ Attribute ID: 0x0021
+Type: 0x8005 (Command IDs - Entries: 21)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x0008 (General: Level Control)
+ Command ID: 0x00
+ Command ID: 0x01
+ Command ID: 0x02
+ Command ID: 0x03
+ Command ID: 0x04
+ Command ID: 0x05
+ Command ID: 0x06
+ Command ID: 0x07
+ Command ID: 0x08
+ Command ID: 0x09
+ Command ID: 0x0A
+ Command ID: 0x40
+ Command ID: 0x41
+ Command ID: 0x42
+ Command ID: 0x43
+ Command ID: 0x44
+ Command ID: 0x47
+ Command ID: 0x4B
+ Command ID: 0x4C
+ Command ID: 0xFE
+ Command ID: 0xFF
+Type: 0x8004 (Cluster Attributes - Entries: 3)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x0019 (General: OTA)
+ Attribute ID: 0x0000
+ Attribute ID: 0x0003
+ Attribute ID: 0x0004
+ Attribute ID: 0x0007
+Type: 0x8005 (Command IDs - Entries: 1)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x0019 (General: OTA)
+ Command ID: 0x00
+Type: 0x8004 (Cluster Attributes - Entries: 2)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x0101 (General: Door Lock
+ Attribute ID: 0x0000
+ Attribute ID: 0x0001
+Type: 0x8005 (Command IDs - Entries: 1)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x0101 (General: Door Lock
+ Command ID: 0x00
+Type: 0x8004 (Cluster Attributes - Entries: 1)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x1000 (ZLL: Commissioning)
+ Attribute ID: 0x0020
+Type: 0x8005 (Command IDs - Entries: 1)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x1000 (ZLL: Commissioning)
+ Command ID: 0x00
+Type: 0x8004 (Cluster Attributes - Entries: 2)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x0300 (Lighting: Color Control)
+ Attribute ID: 0x0000
+ Attribute ID: 0x0001
+ Attribute ID: 0x0004
+Type: 0x8005 (Command IDs - Entries: 1)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x0300 (Lighting: Color Control)
+ Command ID: 0x00
+Type: 0x8004 (Cluster Attributes - Entries: 1)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x0201 (Unknown)
+ Attribute ID: 0x0000
+ Attribute ID: 0x0001
+Type: 0x8005 (Command IDs - Entries: 1)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x0201 (Unknown)
+ Command ID: 0x00
+Type: 0x8004 (Cluster Attributes - Entries: 3)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x0204 (Unknown)
+ Attribute ID: 0x0000
+ Attribute ID: 0x0300
+ Attribute ID: 0x0301
+Type: 0x8005 (Command IDs - Entries: 1)
+ Source EndPoint: 0x01
+  Profile ID: 0x0104 (ZigBee HA)
+  Cluster ID: 0x0204 (Unknown)
+ Command ID: 0x00
+Type: 0x8005 (Command IDs - Entries: 16)
+ Source EndPoint: 0x02
+  Profile ID: 0xC05E (ZigBee LL)
+  Cluster ID: 0x1000 (ZLL: Commissioning)
+ Command ID: 0x00
+ Command ID: 0x01
+ Command ID: 0x02
+ Command ID: 0x03
+ Command ID: 0x06
+ Command ID: 0x07
+ Command ID: 0x10
+ Command ID: 0x11
+ Command ID: 0x12
+ Command ID: 0x13
+ Command ID: 0x14
+ Command ID: 0x15
+ Command ID: 0x16
+ Command ID: 0x40
+ Command ID: 0x41
+ Command ID: 0x42
+Type: 0x8007 (Unrecognized)
+Type: 0x8001 (Log)
+  Level: 0x06
+  Message: Stack low water mark = 0400669c
+Type: 0x8001 (Log)
+  Level: 0x06
+  Message: ** Control Bridge Reset** 
+
+//-设置信道 例如23
+{"cmd": {"chanmask":"23"}}
+Raw Data
+10:44:43.596 -> 01 02 10 21 02 10 02 14 A5 02 10 80 02 10 02 10 03 
+10:44:43.628 <- 01 80 00 00 04 A5 00 00 00 21 03
+
+Receive Message View
+Type: 0x8000 (Status)
+  Length: 4
+  Status: 0x00 (Success)
+  SQN: 0x00
+  Message: 
+
+//-开始建网 Start NWK
+{"cmd": {"resetrsp":0}}
+Raw Data
+11:04:21.824 -> 01 02 10 24 02 10 02 10 24 03 
+11:04:21.876 <- 01 80 00 00 04 A0 00 00 00 24 03
+11:04:22.197 <- 01 80 24 00 0C 5D 01 00 00 00 15 8D 00 00 D3 28 80 17 03
+
+Receive Message View
+Type: 0x8000 (Status)
+  Length: 4
+  Status: 0x00 (Success)
+  SQN: 0x00
+  Message: 
+Type: 0x8024 (Network Up)
+  Status: 0x01
+  Short Address: 0x0000
+  Extended Address: 0x158D0000D32880
+  Channel: 23
+
+//-允许加网 60S,对于MAC地址现在没有启动实际作用,不空即可
+{"cmd": {"setpermit":"00158D0000D32880","duration":60}}
+Raw Data
+13:35:02.324 -> 01 02 10 49 02 10 02 14 72 FF FC 3C 02 10 03 
+13:35:02.361 <- 01 80 00 00 04 9D 00 50 00 49 03
+
+Receive Message View
+Type: 0x8000 (Status)
+  Length: 4
+  Status: 0x00 (Success)
+  SQN: 0x50
+  Message: 
+
+
+
+//-下面再实现两个系统功能,目前简单的控制就全了,接着等需要时再丰富,但是必须要高度符合这个框架,人家的真的很好
+
+//-设置SSID 好像就是连接无线网,这个需要根据实际内容看看JSON如何填写,但是这个能力是有了,不需要电脑了
+{"cmd": {"system":3,"strval":""}}
+Raw Data
+
+Receive Message View
+
+
+//-系统REBOOT 这个是直接控制openwrt系统的
+{"cmd": {"system":7}}
+Raw Data
+
+Receive Message View
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//-设置信道 例如23
+{"cmd": {"reset":0}}
+Raw Data
+
+Receive Message View
+
+

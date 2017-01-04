@@ -278,7 +278,7 @@ int cmdHandle( void ) {
 
             sprintf( logbuffer, "Set channel mask to %s", strval );
             newLogAdd( NEWLOG_FROM_CONTROL_INTERFACE, logbuffer );
-            newDbSystemSaveIntval( "chanmask", AtoiHex( strval ) );
+            newDbSystemSaveIntval( "chanmask", AtoiHex( strval ) );	//-把字符串转化为整数保存到数据库中
 
             message = jsonCmdSetChannelMask( strval );
         }

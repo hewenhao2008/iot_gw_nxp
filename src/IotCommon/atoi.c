@@ -57,7 +57,7 @@ int AtoiMI( char * string ) {
  */
 int AtoiHex( char * string ) {
     if ( string != NULL && *string != '\0' ) {
-        int val = (int)strtol( string, NULL, 16 );
+        int val = (int)strtol( string, NULL, 16 );	//-将参数nptr字符串根据参数base来转换成长整型数。
         return( val );
     }
     return( -1 );
