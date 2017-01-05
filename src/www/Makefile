@@ -4,7 +4,7 @@
 # Author:    nlv10677
 # Copyright: NXP B.V. 2014. All rights reserved
 # ------------------------------------------------------------------
-
+#-组织了网页内容
 INDEX = index.html
 
 ifeq ($(TARGET_MACHINE),RASPBERRYPI)
