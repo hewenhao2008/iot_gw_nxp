@@ -4,7 +4,7 @@
 # Author:    nlv10677
 # Copyright: NXP B.V. 2014. All rights reserved
 # ------------------------------------------------------------------
-
+#-这个文件就是为了系统源码实现某些固定功能,而不需要后来命令行操作,比如复制
 ifeq ($(strip $(ZCB_VERSION)),)
 	ZCB_VERSION=_3v0
 endif
