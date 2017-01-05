@@ -6,7 +6,8 @@
 // Author:    nlv10677
 // Copyright: NXP B.V. 2014. All rights reserved
 // ------------------------------------------------------------------------
-
+//-这里的测试程序是测试服务进程的(iot_ci),而不是自己的,是向服务进程发送消息的
+//-本身模拟的是客户端
 /** \file
  * \section controltest Control Interface Testing
  * \brief Control Interface Test

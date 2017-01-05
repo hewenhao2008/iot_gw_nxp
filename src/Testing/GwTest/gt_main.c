@@ -2,7 +2,8 @@
 //  Simple udp client
 //  Silver Moon (m00n.silv3r@gmail.com)
 // ====================================================================
-
+//-人家就模拟了客户端,而不一定先需要别人开发出来再测试,这个和我平时理解的
+//-测试是有一定区别的
 /** \file
  * \section gatewaytest Gateway Discovery Testing
  * \brief Gateway Discovery Test
