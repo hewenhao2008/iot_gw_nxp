@@ -475,7 +475,7 @@ static void * MqttHandleThread( void * arg ) {//-此线程实现周期备份数据库的功能
 						ret = mqtt_subscribe(m, topic, Qos);//订阅消息
 						printf("mqtt client subscribe %s,  return code = %d\n", topic, ret);
 					}
-					mqtt_sleep(20); //sleep a while
+					mqtt_sleep(2000); //sleep a while
 				}
 				else
 				{
@@ -484,7 +484,7 @@ static void * MqttHandleThread( void * arg ) {//-此线程实现周期备份数据库的功能
 						printf("received Topic=%s, Message=%s\n", m->received_topic, m->received_message);
 						handleMqttMessage(m);
 					}
-					mqtt_sleep(10); //sleep a while
+					mqtt_sleep(200); //sleep a while
 				}
     }
     return NULL;
