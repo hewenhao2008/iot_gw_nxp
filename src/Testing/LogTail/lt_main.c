@@ -70,7 +70,7 @@ int main( int argc, char * argv[] ) {
     }
      
     // Where to start
-    int startIndex = ( zero ) ? 0 : newLogGetIndex();
+    int startIndex = ( zero ) ? 0 : newLogGetIndex();	//-获取当前记录的序号
 
     while ( 1 ) {
         

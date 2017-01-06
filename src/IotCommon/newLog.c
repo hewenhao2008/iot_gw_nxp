@@ -93,12 +93,12 @@ static int newLogOpen( void ) {
     semPautounlock( NEWLOG_SEMKEY, 10 );
 
     // Locate the segment
-    if ((shmid = shmget(NEWLOG_SHMKEY, sizeof(newlog_t), 0666)) < 0) {
+    if ((shmid = shmget(NEWLOG_SHMKEY, sizeof(newlog_t), 0666)) < 0) {//-判断内核中是否存在键值与key相等的共享内存
         
         LL_LOG( "/tmp/loggy", "SHM not found" );
         
         // SHM not found: try to create
-        if ((shmid = shmget(NEWLOG_SHMKEY, sizeof(newlog_t), IPC_CREAT | 0666)) < 0) {
+        if ((shmid = shmget(NEWLOG_SHMKEY, sizeof(newlog_t), IPC_CREAT | 0666)) < 0) {//-创建一个共享内存
             // Create error
             perror("shmget-create");
             printf( "Error creating SHM for Logs\n" );
@@ -111,20 +111,20 @@ static int newLogOpen( void ) {
             LL_LOG( "/tmp/loggy", "SHM created" );
         }
 
-    } else {
+    } else {//-出错
         DEBUG_PRINTF( "Linked to existing SHM for Logs (%d)\n", shmid );
         LL_LOG( "/tmp/loggy", "Linked to existing SHM" );
     }
 
-    if ( shmid >= 0 ) {
+    if ( shmid >= 0 ) {//-共享内存的标识符大于0说明创建成功了
         // Attach the segment to our data space
-        if ((newLogSharedMemory = shmat(shmid, NULL, 0)) == (char *) -1) {
+        if ((newLogSharedMemory = shmat(shmid, NULL, 0)) == (char *) -1) {//-连接共享内存标识符为shmid的共享内存，连接成功后把共享内存区对象映射到调用进程的地址空间，随后可像本地空间一样访问
             perror("shmat");
             printf( "Error attaching SHM for Logs\n" );
             newLogSharedMemory = NULL;
             LL_LOG( "/tmp/loggy", "SHM attach error" );
             
-        } else {
+        } else {//-上面返回了附加好的共享内存地址
             DEBUG_PRINTF( "Successfully attached SHM for Logs\n" );
             LL_LOG( "/tmp/loggy", "Attached to SHM" );
             if ( created ) {
