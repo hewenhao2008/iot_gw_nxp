@@ -65,10 +65,10 @@
 /****************************************************************************/
 
 
-#define DBG_SERIALLINK 0
-#define DBG_SERIALLINK_CB 0
-#define DBG_SERIALLINK_COMMS 0
-#define DBG_SERIALLINK_QUEUE 0
+#define DBG_SERIALLINK 1
+#define DBG_SERIALLINK_CB 1
+#define DBG_SERIALLINK_COMMS 1
+#define DBG_SERIALLINK_QUEUE 1
 
 #define SL_START_CHAR   0x01
 #define SL_ESC_CHAR     0x02

@@ -71,8 +71,10 @@
 #endif /* MAIN_DEBUG */
 
 #ifdef TARGET_RASPBERRYPI
-#define SERIAL_PORT       "/dev/ttyUSB0"
-#define SERIAL_BAUDRATE   1000000
+//-#define SERIAL_PORT       "/dev/ttyUSB0"
+//-#define SERIAL_BAUDRATE   1000000
+#define SERIAL_PORT       "/dev/ttyS0"
+#define SERIAL_BAUDRATE   115200
 #else
 #define SERIAL_PORT       "/dev/ttyTX0"
 #define SERIAL_BAUDRATE   921600

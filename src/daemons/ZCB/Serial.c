@@ -176,7 +176,9 @@ teSerial_Status eSerial_Init(char *name, uint32_t baud, int *piserial_fd)
             return E_SERIAL_ERROR;
     }
     
-    fd = open(name, O_RDWR | O_NOCTTY);
+    //-O_NOCTTY:表示打开的是一个终端设备，程序不会成为该端口的控制终端。如果不使用此标志，任务一个输入(eg:键盘中止信号等)都将影响进程。
+    //-O_NDELAY:表示不关心DCD信号线所处的状态（端口的另一端是否激活或者停止）。
+    fd = open(name, O_RDWR | O_NOCTTY | O_NDELAY);
     if (fd < 0)
     {
         DEBUG_PRINTF( "Couldn't open serial device \"%s\"(%s)\n", name, strerror(errno));
@@ -191,10 +193,15 @@ teSerial_Status eSerial_Init(char *name, uint32_t baud, int *piserial_fd)
 
     options.c_iflag &= ~(INPCK | ISTRIP | INLCR | IGNCR | ICRNL | IUCLC | IXON | IXANY | IXOFF);
     options.c_iflag = IGNBRK | IGNPAR;
+    //-options.c_iflag &= ~INPCK;
     options.c_oflag &= ~(OPOST | OLCUC | ONLCR | OCRNL | ONOCR | ONLRET);
+    //修改输出模式，原始数据输出  
+    //-options.c_oflag &= ~OPOST;  /*Output*/
     options.c_cflag &= ~(CSIZE | CSTOPB | PARENB | CRTSCTS);
     options.c_cflag |= CS8 | CREAD | HUPCL | CLOCAL;
+    //-options.c_cflag |= CS8 | CREAD | CLOCAL;
     options.c_lflag &= ~(ISIG | ICANON | ECHO | IEXTEN);
+    //-options.c_lflag &= ~(ICANON | ECHO | ECHOE | ISIG);//我加的  /*Input*/选择原始输入
 
     cfsetispeed(&options, baud);
     cfsetospeed(&options, baud);
