@@ -28,7 +28,7 @@
 #include "newLog.h"
 #include "cmd.h"
 
-// #define CMD_DEBUG  1
+ #define CMD_DEBUG  1
 
 #ifdef CMD_DEBUG
 #define DEBUG_PRINTF(...) printf(__VA_ARGS__)
@@ -424,13 +424,13 @@ int cmdHandle( void ) {//-对命令进行解析,然后向dongle发送命令,其实就是一个协议的
     // Check for chanmask message
     char * chanmask = parsingGetStringAttr( "chanmask" );
     if ( !isEmptyString( chanmask ) ) {
-        int mask = (int)nibblestr2u64( chanmask );
-        int i = 0, r = rand(), bit, chan = 15;
+        int mask = (int)nibblestr2u64( chanmask );	//-把字符串转化为整数
+        int i = 0, r = rand(), bit, chan = 15;		//-随机数,作用不知道多大
         while ( i < 32 ) {
             bit = ( i + r ) % 32;
             printf( "i = %d, bit = 0x%x\n", i, bit );
             if ( mask & ( 1 << bit ) ) {
-                chan = bit;
+                chan = bit;	//-第一个出现1的位就是设定的信道值
                 break;
             }
             i++;

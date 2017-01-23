@@ -65,10 +65,12 @@
 /****************************************************************************/
 
 
-#define DBG_SERIALLINK 1
-#define DBG_SERIALLINK_CB 1
-#define DBG_SERIALLINK_COMMS 1
-#define DBG_SERIALLINK_QUEUE 1
+#define DBG_SERIALLINK 0
+#define DBG_SERIALLINK_CB 0
+#define DBG_SERIALLINK_COMMS 0
+#define DBG_SERIALLINK_QUEUE 0
+
+#define DEBUG_SERIALLINK 1
 
 #define SL_START_CHAR   0x01
 #define SL_ESC_CHAR     0x02
@@ -303,7 +305,7 @@ teSL_Status eSL_SendMessage(uint16_t u16Type, uint16_t u16Length, void *pvMessag
         sStatus.u16MessageType = u16Type;
 
         /* Expect a status response within 500ms */
-        eStatus = eSL_MessageWait(E_SL_MSG_STATUS, 500, &u16Length, (void**)&psStatus);
+        eStatus = eSL_MessageWait(E_SL_MSG_STATUS, 500*2, &u16Length, (void**)&psStatus);
 // printf( "c\n" );
         
         if (eStatus == E_SL_OK)

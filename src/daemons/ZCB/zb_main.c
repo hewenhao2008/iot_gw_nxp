@@ -74,7 +74,7 @@
 //-#define SERIAL_PORT       "/dev/ttyUSB0"
 //-#define SERIAL_BAUDRATE   1000000
 #define SERIAL_PORT       "/dev/ttyS0"
-#define SERIAL_BAUDRATE   115200
+#define SERIAL_BAUDRATE   500000
 #else
 #define SERIAL_PORT       "/dev/ttyTX0"
 #define SERIAL_BAUDRATE   921600
@@ -88,7 +88,7 @@
 // Globals
 // -------------------------------------------------------------
 
-int verbosity = 1;               /** Default log level */
+int verbosity = 10;               /** Default log level */
 
 /** Main loop running flag */
 volatile int   bRunning            = 1;

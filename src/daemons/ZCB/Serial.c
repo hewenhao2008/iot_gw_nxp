@@ -178,7 +178,8 @@ teSerial_Status eSerial_Init(char *name, uint32_t baud, int *piserial_fd)
     
     //-O_NOCTTY:表示打开的是一个终端设备，程序不会成为该端口的控制终端。如果不使用此标志，任务一个输入(eg:键盘中止信号等)都将影响进程。
     //-O_NDELAY:表示不关心DCD信号线所处的状态（端口的另一端是否激活或者停止）。
-    fd = open(name, O_RDWR | O_NOCTTY | O_NDELAY);
+    fd = open(name, O_RDWR | O_NOCTTY);
+    //-fd = open(name, O_RDWR | O_NOCTTY | O_NDELAY);
     if (fd < 0)
     {
         DEBUG_PRINTF( "Couldn't open serial device \"%s\"(%s)\n", name, strerror(errno));
